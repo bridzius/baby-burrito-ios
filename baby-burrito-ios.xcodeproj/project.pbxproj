@@ -6,6 +6,10 @@
 	objectVersion = 90;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		000000000000000200000001 /* BabyCore in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000200000002 /* BabyCore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		000000000000000000000120 /* baby-burrito-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "baby-burrito-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -22,6 +26,7 @@
 		000000000000000130000000 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				000000000000000200000001 /* BabyCore in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -60,6 +65,9 @@
 				000000000000000000000010 /* baby-burrito-ios */,
 			);
 			name = "baby-burrito-ios";
+			packageProductDependencies = (
+				000000000000000200000002 /* BabyCore */,
+			);
 			productName = BabyBurrito;
 			productReference = 000000000000000000000120 /* baby-burrito-ios.app */;
 			productType = "com.apple.product-type.application";
@@ -88,6 +96,9 @@
 			);
 			mainGroup = 000000000000000000000001;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				000000000000000200000003 /* XCLocalSwiftPackageReference "Packages/BabyCore" */,
+			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 000000000000000000000020 /* Products */;
 			projectDirPath = "";
@@ -341,6 +352,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		000000000000000200000003 /* XCLocalSwiftPackageReference "Packages/BabyCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/BabyCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		000000000000000200000002 /* BabyCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BabyCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 000000000000000000000000 /* Project object */;
 }
