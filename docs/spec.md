@@ -230,7 +230,7 @@ Measured on an iPhone 18 Pro, release build. They are acceptance criteria, not g
 ### Code constraints that keep it small
 
 - **No third-party dependencies.** Apple frameworks only: SwiftUI, SwiftData, CloudKit, ActivityKit, WidgetKit, AppIntents, Charts.
-- **One local Swift package, `BabyCore`**, shared by the app and the widget extension so code isn't duplicated in two binaries. It has two flat targets: `Domain` (Foundation only) and `BabyCore` (Persistence, Sync, Sharing, Activity content; depends on `Domain`). The split lets the compiler enforce that `Domain` stays pure.
+- **One local Swift package, `BabyCore`**, shared by the app and the widget extension so code isn't duplicated in two binaries. It has two flat targets: `Domain` (Foundation only) and `BabyCore` (Persistence, Sync, Sharing, Activity content; depends on `Domain`). The split keeps `Domain` from importing other package modules; a CI check rejects any import other than Foundation.
 - **No custom fonts, images, Lottie or analytics.** Animations are SwiftUI and SF Symbol effects.
 - **Pure `Domain`.** Validation and statistics are framework-free Swift, ported from [`src/feedings/mod.rs`](https://github.com/bridzius/baby-burrito-back/blob/main/src/feedings/mod.rs) and [`src/stats.rs`](https://github.com/bridzius/baby-burrito-back/blob/main/src/stats.rs) with the same test cases, except millisecond truncation, which only existed for Postgres. On device, `fedAt` must lie between the start of the baby's birth day and now + 5 minutes.
 

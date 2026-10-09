@@ -133,7 +133,7 @@ Packages/BabyCore/
 Rules:
 
 - **Data flow:** views → `FeedingStore` → SwiftData, and `FeedingStore` → `SyncCoordinator.enqueue(...)`. The UI never touches CloudKit.
-- **Domain is pure:** Foundation only, enforced by being its own target. Port `src/stats.rs` and `src/feedings/mod.rs` validation into it, along with their test cases, so both implementations agree.
+- **Domain is pure:** Foundation only. Its own target keeps out package modules; a CI check rejects any other import. Port `src/stats.rs` and `src/feedings/mod.rs` validation into it, along with their test cases, so both implementations agree.
 - **Shared store location:** the SwiftData store lives in an **App Group** container from day one, so the widget extension can read it.
 - **Two sync engines:** one for `CKContainer.privateCloudDatabase` (babies we own) and one for `sharedCloudDatabase` (babies shared with us). Either parent can be in either role.
 
