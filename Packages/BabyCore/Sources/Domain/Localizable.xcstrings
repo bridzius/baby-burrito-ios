@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "A feeding can't be before the birth date." : {
+      "extractionState" : "manual"
+    },
+    "A feeding can't be in the future." : {
+      "extractionState" : "manual"
+    },
+    "Choose a birth date on or after 1 January 2026." : {
+      "extractionState" : "manual"
+    },
+    "Choose a side." : {
+      "extractionState" : "manual"
+    },
+    "Choose an interval from 15 min to 12 h, in 15-minute steps." : {
+      "extractionState" : "manual"
+    },
+    "Enter a duration from %lld to %lld min." : {
+      "extractionState" : "manual"
+    },
+    "Enter a duration." : {
+      "extractionState" : "manual"
+    },
+    "Enter an amount from %lld to %lld ml." : {
+      "extractionState" : "manual"
+    },
+    "Enter an amount." : {
+      "extractionState" : "manual"
+    },
+    "Enter the baby's name." : {
+      "extractionState" : "manual"
+    },
+    "Only a bottle has an amount." : {
+      "extractionState" : "manual"
+    },
+    "Only a nursing has a duration and a side." : {
+      "extractionState" : "manual"
+    }
+  },
+  "version" : "1.0"
+}
