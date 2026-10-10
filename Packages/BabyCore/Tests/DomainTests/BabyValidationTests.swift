@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Domain
+import Domain
 
 struct BabyValidationTests {
     let calendar: Calendar = .vilnius

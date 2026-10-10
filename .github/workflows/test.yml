@@ -20,3 +20,7 @@ jobs:
       - name: Run Domain tests
         working-directory: Packages/BabyCore
         run: swift test --filter DomainTests
+
+      - name: Run Domain tests in release mode for the performance budgets
+        working-directory: Packages/BabyCore
+        run: swift test -c release --filter DomainTests
