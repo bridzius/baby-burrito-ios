@@ -1,5 +1,5 @@
 import Testing
-@testable import Domain
+import Domain
 
 struct RawValueTests {
     @Test func feeding_kinds_use_the_backend_raw_values() {

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Domain
+import Domain
 
 struct FeedingValidationTests {
     let calendar: Calendar = .vilnius
