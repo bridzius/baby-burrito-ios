@@ -128,7 +128,7 @@ Packages/BabyCore/
   Tests/BabyCoreTests/
 ```
 
-`Package.swift` declares the platform as `.iOS("27.0")` (string form), so `Domain` and its tests also build with Xcodes that predate the iOS 27 SDK, which is what CI uses until hosted runners ship it.
+`Package.swift` declares the platforms as `.iOS("27.0")` (string form) and `.macOS(.v15)`, so `Domain` and its tests also build with Xcodes that predate the iOS 27 SDK, which is what CI uses until hosted runners ship it. The macOS platform is only for running tests on the Mac; without it, older Xcodes assume a macOS deployment target too old for `String(localized:)`.
 
 Rules:
 
