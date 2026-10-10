@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "BabyCore",
     defaultLocalization: "en",
-    platforms: [.iOS("27.0")],
+    platforms: [.iOS("27.0"), .macOS(.v15)],
     products: [
         .library(name: "BabyCore", targets: ["BabyCore"]),
     ],
