@@ -1,7 +1,16 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-
+    "Birth date" : {},
+    "Choose the birth date" : {},
+    "Choose the birth date to continue." : {},
+    "Continue" : {},
+    "Couldn't save. Try again." : {},
+    "Feeding interval" : {},
+    "Joining your partner's log? Open their invite link." : {},
+    "Name" : {},
+    "No feedings yet" : {},
+    "Your baby" : {}
   },
   "version" : "1.0"
 }
