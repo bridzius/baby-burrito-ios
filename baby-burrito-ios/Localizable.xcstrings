@@ -1,16 +1,28 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ ago" : {},
+    "%@ \u00b7 " : {},
     "Birth date" : {},
+    "Cancel" : {},
     "Choose the birth date" : {},
     "Choose the birth date to continue." : {},
     "Continue" : {},
     "Couldn't save. Try again." : {},
+    "Done" : {},
+    "Due now" : {},
     "Feeding interval" : {},
     "Joining your partner's log? Open their invite link." : {},
+    "Last" : {},
     "Name" : {},
+    "Next feeding" : {},
+    "Next feeding due now, at %@" : {},
+    "Next feeding in %@, at %@" : {},
+    "Next feeding was due %@ ago, at %@" : {},
     "No feedings yet" : {},
-    "Your baby" : {}
+    "Your baby" : {},
+    "at %@ \u00b7 every %@" : {},
+    "in %@" : {}
   },
   "version" : "1.0"
 }
