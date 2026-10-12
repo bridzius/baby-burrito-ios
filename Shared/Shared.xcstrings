@@ -1,0 +1,18 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Breast milk" : {
+      "comment" : "Name of a feeding kind",
+      "extractionState" : "manual"
+    },
+    "Formula" : {
+      "comment" : "Name of a feeding kind",
+      "extractionState" : "manual"
+    },
+    "Nursing" : {
+      "comment" : "Name of a feeding kind",
+      "extractionState" : "manual"
+    }
+  },
+  "version" : "1.0"
+}
