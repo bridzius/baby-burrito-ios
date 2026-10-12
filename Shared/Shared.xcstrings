@@ -12,6 +12,18 @@
     "Nursing" : {
       "comment" : "Name of a feeding kind",
       "extractionState" : "manual"
+    },
+    "both" : {
+      "comment" : "Which side a nursing used",
+      "extractionState" : "manual"
+    },
+    "left" : {
+      "comment" : "Which side a nursing used",
+      "extractionState" : "manual"
+    },
+    "right" : {
+      "comment" : "Which side a nursing used",
+      "extractionState" : "manual"
     }
   },
   "version" : "1.0"

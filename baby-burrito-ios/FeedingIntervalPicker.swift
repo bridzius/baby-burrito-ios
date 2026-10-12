@@ -2,7 +2,10 @@ import BabyCore
 import SwiftUI
 
 struct FeedingIntervalPicker: View {
-    static let chipMinutes: [Int] = [120, 150, 180, 210, 240]
+    static let chipMinutes: [Int]                    = [120, 150, 180, 210, 240]
+    static let chipFormat: Duration.UnitsFormatStyle = .units(
+        allowed: [.hours, .minutes], width: .narrow
+    )
 
     @Binding var feedingIntervalMinutes: Int
 
@@ -12,7 +15,7 @@ struct FeedingIntervalPicker: View {
             in:    Baby.allowedFeedingIntervalMinutes,
             step:  Baby.feedingIntervalStepMinutes
         ) {
-            Text(Self.formatted(minutes: feedingIntervalMinutes))
+            Text(Duration.minutes(feedingIntervalMinutes).formatted(.hoursAndMinutes))
                 .numerals(.title3)
         }
 
@@ -24,16 +27,11 @@ struct FeedingIntervalPicker: View {
     }
 
     private func chip(minutes: Int) -> some View {
-        Button(Self.formatted(minutes: minutes)) {
+        Button(Duration.minutes(minutes).formatted(Self.chipFormat)) {
             feedingIntervalMinutes = minutes
         }
         .buttonStyle(.bordered)
         .tint(minutes == feedingIntervalMinutes ? .accentColor : .secondary)
         .monospacedDigit()
-    }
-
-    private static func formatted(minutes: Int) -> String {
-        Duration.seconds(minutes * 60)
-            .formatted(.units(allowed: [.hours, .minutes], width: .narrow))
     }
 }
