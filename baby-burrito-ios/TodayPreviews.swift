@@ -10,8 +10,51 @@ private enum PreviewTiming {
     static let birthDaysAgo: Double           = 14
 }
 
+private struct PreviewFeeding {
+    let secondsAgo: TimeInterval
+    let details: FeedingDetails
+
+    static func nursing(_ side: Side, minutes: Int, hoursAgo: Double) -> PreviewFeeding {
+        PreviewFeeding(
+            secondsAgo: hoursAgo * 3_600,
+            details:    FeedingDetails(kind: .nursing, durationMinutes: minutes, side: side)
+        )
+    }
+
+    static func bottle(_ kind: FeedingKind, ml: Int, hoursAgo: Double) -> PreviewFeeding {
+        PreviewFeeding(
+            secondsAgo: hoursAgo * 3_600,
+            details:    FeedingDetails(kind: kind, amountMl: ml)
+        )
+    }
+
+    static func lastNursing(secondsAgo: TimeInterval) -> [PreviewFeeding] {
+        [PreviewFeeding(
+            secondsAgo: secondsAgo,
+            details:    FeedingDetails(kind: .nursing, durationMinutes: 15, side: .left)
+        )]
+    }
+
+    static let countingDown: [PreviewFeeding] = lastNursing(
+        secondsAgo: PreviewTiming.countingDownSecondsAgo
+    )
+    static let dueNow: [PreviewFeeding] = lastNursing(secondsAgo: PreviewTiming.dueNowSecondsAgo)
+    static let dueFor: [PreviewFeeding] = lastNursing(secondsAgo: PreviewTiming.dueForSecondsAgo)
+
+    static let mixedKinds: [PreviewFeeding] = [
+        .nursing(.left, minutes: 15, hoursAgo: 1.5),
+        .bottle(.breastMilk, ml: 90, hoursAgo: 4),
+        .nursing(.right, minutes: 20, hoursAgo: 7),
+        .bottle(.formula, ml: 120, hoursAgo: 10),
+        .nursing(.both, minutes: 10, hoursAgo: 13.5),
+        .bottle(.formula, ml: 80, hoursAgo: 17),
+        .bottle(.breastMilk, ml: 60, hoursAgo: 21),
+        .bottle(.formula, ml: 100, hoursAgo: 26),
+    ]
+}
+
 @MainActor
-private func todayPreview(lastFeedingSecondsAgo: TimeInterval?) -> some View {
+private func todayPreview(feedings: [PreviewFeeding]) -> some View {
     do {
         let container: ModelContainer = try LocalStore.inMemoryContainer()
         let store: FeedingStore       = FeedingStore(
@@ -25,11 +68,9 @@ private func todayPreview(lastFeedingSecondsAgo: TimeInterval?) -> some View {
             birthDate:              .now.addingTimeInterval(-PreviewTiming.birthDaysAgo * 86_400),
             feedingIntervalMinutes: PreviewTiming.feedingIntervalMinutes
         ))
-        if let lastFeedingSecondsAgo {
-            _ = try store.log(
-                fedAt:   .now.addingTimeInterval(-lastFeedingSecondsAgo),
-                details: FeedingDetails(kind: .nursing, durationMinutes: 15, side: .left)
-            )
+        for feeding in feedings {
+            let fedAt: Date = .now.addingTimeInterval(-feeding.secondsAgo)
+            _ = try store.log(fedAt: fedAt, details: feeding.details)
         }
         return TodayView(baby: baby) { _ in }
             .modelContainer(container)
@@ -39,37 +80,46 @@ private func todayPreview(lastFeedingSecondsAgo: TimeInterval?) -> some View {
 }
 
 #Preview("No feedings, light") {
-    todayPreview(lastFeedingSecondsAgo: nil)
+    todayPreview(feedings: [])
 }
 
 #Preview("No feedings, dark") {
-    todayPreview(lastFeedingSecondsAgo: nil)
+    todayPreview(feedings: [])
         .preferredColorScheme(.dark)
 }
 
 #Preview("Counting down, light") {
-    todayPreview(lastFeedingSecondsAgo: PreviewTiming.countingDownSecondsAgo)
+    todayPreview(feedings: PreviewFeeding.countingDown)
 }
 
 #Preview("Counting down, dark") {
-    todayPreview(lastFeedingSecondsAgo: PreviewTiming.countingDownSecondsAgo)
+    todayPreview(feedings: PreviewFeeding.countingDown)
         .preferredColorScheme(.dark)
 }
 
 #Preview("Due now, light") {
-    todayPreview(lastFeedingSecondsAgo: PreviewTiming.dueNowSecondsAgo)
+    todayPreview(feedings: PreviewFeeding.dueNow)
 }
 
 #Preview("Due now, dark") {
-    todayPreview(lastFeedingSecondsAgo: PreviewTiming.dueNowSecondsAgo)
+    todayPreview(feedings: PreviewFeeding.dueNow)
         .preferredColorScheme(.dark)
 }
 
 #Preview("Due for 1 h 5 min, light") {
-    todayPreview(lastFeedingSecondsAgo: PreviewTiming.dueForSecondsAgo)
+    todayPreview(feedings: PreviewFeeding.dueFor)
 }
 
 #Preview("Due for 1 h 5 min, dark") {
-    todayPreview(lastFeedingSecondsAgo: PreviewTiming.dueForSecondsAgo)
+    todayPreview(feedings: PreviewFeeding.dueFor)
+        .preferredColorScheme(.dark)
+}
+
+#Preview("Mixed kinds, light") {
+    todayPreview(feedings: PreviewFeeding.mixedKinds)
+}
+
+#Preview("Mixed kinds, dark") {
+    todayPreview(feedings: PreviewFeeding.mixedKinds)
         .preferredColorScheme(.dark)
 }
