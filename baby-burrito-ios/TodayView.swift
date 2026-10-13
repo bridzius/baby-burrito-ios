@@ -44,6 +44,22 @@ struct TodayView: View {
                 Section("Last") {
                     LastFeedingCard(feeding: lastFeeding)
                 }
+                Section {
+                    TimelineView(.everyMinute) { context in
+                        Last24HoursSummary(now: context.date)
+                    }
+                } header: {
+                    HStack {
+                        Text("Last 24 h")
+                        Spacer()
+                        NavigationLink {
+                            TrendsView()
+                        } label: {
+                            Label("Trends", systemImage: "chart.bar.xaxis")
+                                .labelStyle(.iconOnly)
+                        }
+                    }
+                }
             }
             .listStyle(.plain)
         } else {

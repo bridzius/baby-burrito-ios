@@ -15,10 +15,7 @@ extension FeedingDetails {
             parts.append(Duration.minutes(durationMinutes).formatted(.hoursAndMinutes))
         }
         if let amountMl {
-            let amount: Measurement<UnitVolume> = Measurement(
-                value: Double(amountMl), unit: .milliliters
-            )
-            parts.append(amount.formatted(.measurement(width: .abbreviated)))
+            parts.append(amountMl.formattedMillilitres)
         }
         return parts.joined(separator: Self.summarySeparator)
     }

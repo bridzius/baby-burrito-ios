@@ -2,7 +2,30 @@
   "sourceLanguage" : "en",
   "strings" : {
     "%@ ago" : {},
+    "%@ nursing" : {},
     "%@ \u00b7 " : {},
+    "%lld bottles" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld bottle"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld bottles"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Birth date" : {},
     "Cancel" : {},
     "Choose the birth date" : {},
@@ -11,15 +34,22 @@
     "Couldn't save. Try again." : {},
     "Done" : {},
     "Due now" : {},
+    "Ended" : {},
+    "Fed at" : {},
     "Feeding interval" : {},
     "Joining your partner's log? Open their invite link." : {},
     "Last" : {},
+    "Last 24 h" : {},
     "Name" : {},
     "Next feeding" : {},
     "Next feeding due now, at %@" : {},
     "Next feeding in %@, at %@" : {},
     "Next feeding was due %@ ago, at %@" : {},
     "No feedings yet" : {},
+    "No trends yet" : {},
+    "Row" : {},
+    "Started" : {},
+    "Trends" : {},
     "Your baby" : {},
     "at %@ \u00b7 every %@" : {},
     "in %@" : {}
