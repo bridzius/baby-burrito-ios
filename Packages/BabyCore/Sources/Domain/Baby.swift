@@ -17,7 +17,10 @@ public struct Baby: Equatable, Sendable {
         self.feedingIntervalMinutes = feedingIntervalMinutes
     }
 
-    public func validated(calendar: Calendar) throws(BabyValidationError) -> Baby {
+    public func validated(
+        calendar:      Calendar,
+        earliestFedAt: Date?
+    ) throws(BabyValidationError) -> Baby {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw .emptyName
         }
@@ -25,6 +28,9 @@ public struct Baby: Equatable, Sendable {
             preconditionFailure("The calendar can't represent the earliest birth day")
         }
         guard birthDate >= earliestBirthDate else { throw .birthDateTooEarly }
+        if let earliestFedAt, earliestFedAt < calendar.startOfDay(for: birthDate) {
+            throw .birthDateAfterEarliestFeeding
+        }
         guard Self.allowedFeedingIntervalMinutes.contains(feedingIntervalMinutes),
               feedingIntervalMinutes.isMultiple(of: Self.feedingIntervalStepMinutes)
         else { throw .feedingIntervalNotAllowed }
