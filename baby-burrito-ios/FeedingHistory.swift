@@ -9,6 +9,7 @@ struct FeedingHistory: View {
 
     let fetchLimit: Int
     let loadNextPage: () -> Void
+    let edit: (LocalFeeding) -> Void
     let delete: (LocalFeeding) -> Void
 
     @Query private var feedings: [LocalFeeding]
@@ -16,10 +17,12 @@ struct FeedingHistory: View {
     init(
         fetchLimit:   Int,
         loadNextPage: @escaping () -> Void,
+        edit:         @escaping (LocalFeeding) -> Void,
         delete:       @escaping (LocalFeeding) -> Void
     ) {
         self.fetchLimit   = fetchLimit
         self.loadNextPage = loadNextPage
+        self.edit         = edit
         self.delete       = delete
 
         var descriptor: FetchDescriptor<LocalFeeding> = FetchDescriptor(
@@ -40,6 +43,9 @@ struct FeedingHistory: View {
                         .swipeActions(edge: .trailing) {
                             Button("Delete", systemImage: "trash", role: .destructive) {
                                 delete(localFeeding)
+                            }
+                            Button("Edit", systemImage: "pencil") {
+                                edit(localFeeding)
                             }
                         }
                 }

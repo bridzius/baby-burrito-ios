@@ -13,6 +13,8 @@ struct TodayView: View {
     @State private var historyFetchLimit: Int        = FeedingHistory.pageSize
     @State private var pendingDeletion: DeletedFeeding?
     @State private var isShowingSaveFailure: Bool     = false
+    @State private var logSheetMode: LogSheetMode?
+    @State private var savedFeedingCount: Int         = 0
 
     static var lastFeedingDescriptor: FetchDescriptor<LocalFeeding> {
         var descriptor: FetchDescriptor<LocalFeeding> = FetchDescriptor(
@@ -44,6 +46,16 @@ struct TodayView: View {
                     deletedID == nil ? nil : .impact(weight: .light)
                 }
                 .alert("Couldn't save. Try again.", isPresented: $isShowingSaveFailure) {}
+                .sheet(item: $logSheetMode, content: logSheet)
+                .sensoryFeedback(.success, trigger: savedFeedingCount)
+                .toolbar {
+                    ToolbarSpacer(placement: .bottomBar)
+                    ToolbarItem(placement: .bottomBar) {
+                        Button("Log feeding", systemImage: "plus") {
+                            logSheetMode = .log(after: lastFeedings.first?.feeding)
+                        }
+                    }
+                }
         }
     }
 
@@ -80,6 +92,7 @@ struct TodayView: View {
                 FeedingHistory(
                     fetchLimit:   historyFetchLimit,
                     loadNextPage: { historyFetchLimit += FeedingHistory.pageSize },
+                    edit:         { logSheetMode = .edit($0) },
                     delete:       delete
                 )
             }
@@ -92,6 +105,34 @@ struct TodayView: View {
                     Image(systemName: "teddybear.fill")
                         .symbolEffect(.breathe)
                 }
+            } actions: {
+                Button("Log the first feeding") {
+                    logSheetMode = .log(after: nil)
+                }
+                .buttonStyle(.glassProminent)
+            }
+        }
+    }
+
+    private func logSheet(_ mode: LogSheetMode) -> some View {
+        switch mode {
+        case .log(let lastFeeding):
+            LogSheet(
+                title:     "Log feeding",
+                draft:     .logging(after: lastFeeding, now: .now),
+                birthDate: baby.birthDate
+            ) { fedAt, details in
+                _ = try feedingStore.log(fedAt: fedAt, details: details)
+                savedFeedingCount += 1
+            }
+        case .edit(let localFeeding):
+            LogSheet(
+                title:     "Edit feeding",
+                draft:     .editing(localFeeding.feeding),
+                birthDate: baby.birthDate
+            ) { fedAt, details in
+                try feedingStore.update(localFeeding, fedAt: fedAt, details: details)
+                savedFeedingCount += 1
             }
         }
     }
