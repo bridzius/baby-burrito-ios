@@ -72,7 +72,7 @@ private func todayPreview(feedings: [PreviewFeeding]) -> some View {
             let fedAt: Date = .now.addingTimeInterval(-feeding.secondsAgo)
             _ = try store.log(fedAt: fedAt, details: feeding.details)
         }
-        return TodayView(baby: baby) { _ in }
+        return TodayView(baby: baby, feedingStore: store)
             .modelContainer(container)
     } catch {
         preconditionFailure("Preview data failed: \(error)")
