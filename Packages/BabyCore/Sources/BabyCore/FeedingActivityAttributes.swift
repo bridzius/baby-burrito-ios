@@ -1,7 +1,5 @@
-#if os(iOS)
-import ActivityKit
-
-public struct FeedingActivityAttributes: ActivityAttributes {
+// Plain data on every platform so the lifecycle decisions test on macOS; ActivityKit below.
+public struct FeedingActivityAttributes: Codable, Hashable, Sendable {
     public typealias ContentState = FeedingActivityContent
 
     public var babyName: String
@@ -14,4 +12,9 @@ public struct FeedingActivityAttributes: ActivityAttributes {
         self.canLog   = canLog
     }
 }
+
+#if os(iOS)
+import ActivityKit
+
+extension FeedingActivityAttributes: ActivityAttributes {}
 #endif

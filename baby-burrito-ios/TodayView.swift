@@ -10,6 +10,7 @@ struct TodayView: View {
 
     let baby: LocalBaby
     let feedingStore: FeedingStore
+    let activityController: FeedingActivityController
 
     @Query(Self.lastFeedingDescriptor) private var lastFeedings: [LocalFeeding]
     @State private var isEditingFeedingInterval: Bool = false
@@ -38,7 +39,11 @@ struct TodayView: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink {
-                            SettingsView(localBaby: baby, feedingStore: feedingStore)
+                            SettingsView(
+                                localBaby:    baby,
+                                lastFeeding:  lastFeedings.first?.feeding,
+                                feedingStore: feedingStore
+                            )
                         } label: {
                             Label("Settings", systemImage: "gearshape")
                         }
@@ -66,6 +71,12 @@ struct TodayView: View {
                     }
                 }
                 .onOpenURL(perform: openDeepLink)
+                .liveActivityRefresh(
+                    baby:        baby,
+                    lastFeeding: lastFeedings.first?.feeding,
+                    canLog:      Self.canLog,
+                    controller:  activityController
+                )
                 .task(id: deepLinkNotice) {
                     await clearDeepLinkNoticeAfterAWhile()
                 }

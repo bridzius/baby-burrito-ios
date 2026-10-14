@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Baby: Equatable, Sendable {
+public struct Baby: Hashable, Sendable {
     public static let earliestBirthDay: DateComponents                = DateComponents(
         year: 2026, month: 1, day: 1
     )

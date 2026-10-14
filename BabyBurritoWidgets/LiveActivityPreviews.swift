@@ -66,16 +66,18 @@ private enum PreviewActivity {
     VStack(spacing: 24) {
         ForEach([false, true], id: \.self) { isLuminanceReduced in
             ActivityLockScreenView(
-                babyName: "Burrito",
-                content:  PreviewActivity.countingDown,
-                canLog:   true,
-                isDue:    false
+                babyName:  "Burrito",
+                content:   PreviewActivity.countingDown,
+                canLog:    true,
+                isDue:     false,
+                showsRing: true
             )
             ActivityLockScreenView(
-                babyName: "Burrito",
-                content:  PreviewActivity.due,
-                canLog:   false,
-                isDue:    true
+                babyName:  "Burrito",
+                content:   PreviewActivity.due,
+                canLog:    false,
+                isDue:     true,
+                showsRing: true
             )
             .environment(\.isLuminanceReduced, isLuminanceReduced)
         }

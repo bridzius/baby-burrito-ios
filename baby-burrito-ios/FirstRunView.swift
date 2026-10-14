@@ -12,7 +12,7 @@ struct FirstRunView: View {
     @State private var name: String                = ""
     @State private var birthDate: Date?
     @State private var feedingIntervalMinutes: Int = Self.defaultFeedingIntervalMinutes
-    @State private var isShowingSaveFailure: Bool  = false
+    @State private var pendingBaby: Baby?
 
     var body: some View {
         NavigationStack {
@@ -38,7 +38,9 @@ struct FirstRunView: View {
             .safeAreaInset(edge: .bottom) {
                 continueBar
             }
-            .alert("Couldn't save. Try again.", isPresented: $isShowingSaveFailure) {}
+            .navigationDestination(item: $pendingBaby) { baby in
+                LockScreenStep(baby: baby, createBaby: createBaby)
+            }
         }
     }
 
@@ -66,7 +68,7 @@ struct FirstRunView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Button("Continue", action: saveBaby)
+            Button("Continue", action: continueToLockScreen)
                 .buttonStyle(.glassProminent)
                 .controlSize(.large)
                 .disabled(invalidReason != nil)
@@ -92,15 +94,11 @@ struct FirstRunView: View {
         return birthDate == nil ? String(localized: "Choose the birth date to continue.") : nil
     }
 
-    private func saveBaby() {
+    private func continueToLockScreen() {
         guard let birthDate else {
             preconditionFailure("Continue is disabled without a birth date")
         }
-        do {
-            try createBaby(baby(birthDate: birthDate))
-        } catch {
-            isShowingSaveFailure = true
-        }
+        pendingBaby = baby(birthDate: birthDate)
     }
 }
 

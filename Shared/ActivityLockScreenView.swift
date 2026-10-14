@@ -11,6 +11,8 @@ struct ActivityLockScreenView: View {
     let content: FeedingActivityContent
     let canLog: Bool
     let isDue: Bool
+    // Inside the app a timer ProgressView draws a spinner, so in-app previews leave it out.
+    let showsRing: Bool
 
     @Environment(\.isLuminanceReduced) private var isLuminanceReduced: Bool
 
@@ -43,7 +45,8 @@ struct ActivityLockScreenView: View {
 
             Spacer(minLength: 0)
 
-            if let kind = content.lastKind,
+            if showsRing,
+               let kind = content.lastKind,
                let lastFedAt = content.lastFedAt,
                let nextFeedingAt = content.nextFeedingAt {
                 ActivityRing(
