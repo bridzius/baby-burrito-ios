@@ -53,7 +53,10 @@ struct LoggedConfirmation: View {
                 }
                 dismiss()
             }
-            .onAppear { hasAppeared = true }
+            .onAppear {
+                hasAppeared = true
+                announceLogged()
+            }
             .alert("Couldn't save. Try again.", isPresented: $isShowingSaveFailure) {}
         }
         .presentationDetents([.medium, .large])
@@ -68,6 +71,13 @@ struct LoggedConfirmation: View {
                 .font(.headline)
         }
         .accessibilityElement(children: .combine)
+    }
+
+    private func announceLogged() {
+        let time: String = draft.fedAt.formatted(date: .omitted, time: .shortened)
+        AccessibilityNotification.Announcement(
+            String(localized: "Logged \(String(localized: draft.kind.name)) at \(time)")
+        ).post()
     }
 
     private func saveChange() {

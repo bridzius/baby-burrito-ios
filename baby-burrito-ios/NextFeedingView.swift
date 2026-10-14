@@ -4,10 +4,20 @@ import SwiftUI
 struct NextFeedingView: View {
     static let refreshSeconds: TimeInterval  = 60
     static let minimumDueForScale: CGFloat   = 0.8
+    static let minimumTapHeight: CGFloat     = 44
 
     let lastFeeding: Feeding
     let feedingIntervalMinutes: Int
     let editFeedingInterval: () -> Void
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize: DynamicTypeSize
+
+    // At accessibility sizes the countdown needs the full width, so the ring goes below it.
+    private var headerLayout: AnyLayout {
+        dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading))
+            : AnyLayout(HStackLayout())
+    }
 
     private var nextFeedingAt: Date {
         lastFeeding.nextFeedingAt(feedingIntervalMinutes: feedingIntervalMinutes)
@@ -39,9 +49,9 @@ struct NextFeedingView: View {
             let dueState: DueState = DueState(nextFeedingAt: nextFeedingAt, now: now)
 
             VStack(alignment: .leading, spacing: 8) {
-                HStack {
+                headerLayout {
                     headline(dueState: dueState)
-                    Spacer()
+                    Spacer(minLength: 0)
                     FeedingRing(
                         kind:            lastFeeding.details.kind,
                         fractionElapsed: fractionElapsed(now: now),
@@ -51,6 +61,8 @@ struct NextFeedingView: View {
 
                 Button(action: editFeedingInterval) {
                     Text("at \(nextFeedingTime) · every \(feedingInterval)")
+                        .frame(minHeight: Self.minimumTapHeight)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)

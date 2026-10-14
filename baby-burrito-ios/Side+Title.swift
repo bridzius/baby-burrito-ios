@@ -9,4 +9,12 @@ extension Side {
         case .both:  "Both"
         }
     }
+
+    var spokenName: LocalizedStringResource {
+        switch self {
+        case .left:  "left breast"
+        case .right: "right breast"
+        case .both:  "both breasts"
+        }
+    }
 }

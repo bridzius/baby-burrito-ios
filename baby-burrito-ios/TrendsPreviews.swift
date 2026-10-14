@@ -73,3 +73,8 @@ private func trendsPreview() -> some View {
     trendsPreview()
         .preferredColorScheme(.dark)
 }
+
+#Preview("30 days, AX5") {
+    trendsPreview()
+        .dynamicTypeSize(.accessibility5)
+}

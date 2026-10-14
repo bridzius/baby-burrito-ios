@@ -58,7 +58,7 @@ final class RepeatTests: XCTestCase {
 
         XCTAssertEqual(rows.count, 2)
         let edited: XCUIElement = rows.matching(
-            NSPredicate(format: "label CONTAINS %@", "Both · 20 min")
+            NSPredicate(format: "label CONTAINS %@", "both breasts, 20 minutes")
         ).firstMatch
         XCTAssertTrue(edited.exists)
     }
