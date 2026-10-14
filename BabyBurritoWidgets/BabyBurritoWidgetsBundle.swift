@@ -6,5 +6,6 @@ import WidgetKit
 struct BabyBurritoWidgetsBundle: WidgetBundle {
     var body: some Widget {
         FeedingLiveActivity()
+        FeedingWidget()
     }
 }
