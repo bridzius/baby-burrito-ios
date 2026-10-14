@@ -9,9 +9,7 @@ struct RootView: View {
 
     var body: some View {
         if let baby = babies.first {
-            TodayView(baby: baby) { updatedBaby in
-                try feedingStore.updateBaby(baby, to: updatedBaby)
-            }
+            TodayView(baby: baby, feedingStore: feedingStore)
         } else {
             FirstRunView { baby in
                 _ = try feedingStore.createBaby(baby)

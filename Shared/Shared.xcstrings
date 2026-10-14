@@ -24,6 +24,42 @@
     "right" : {
       "comment" : "Which side a nursing used",
       "extractionState" : "manual"
+    },
+    "side.short.both" : {
+      "comment" : "Both sides, short form",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Both"
+          }
+        }
+      }
+    },
+    "side.short.left" : {
+      "comment" : "Short for left side",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L"
+          }
+        }
+      }
+    },
+    "side.short.right" : {
+      "comment" : "Short for right side",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "R"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

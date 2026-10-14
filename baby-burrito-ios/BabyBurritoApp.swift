@@ -8,21 +8,32 @@ struct BabyBurritoApp: App {
     let feedingStore: FeedingStore
 
     init() {
-        do {
-            modelContainer = try LocalStore.container(
-                at:       LocalStore.appGroupStoreURL(),
-                readOnly: false
-            )
-        } catch {
-            preconditionFailure("The local store didn't open: \(error)")
-        }
-
-        feedingStore = FeedingStore(
+        modelContainer = Self.openModelContainer()
+        feedingStore   = FeedingStore(
             modelContext: modelContainer.mainContext,
             syncQueue:    NoSyncQueue(),
             calendar:     .autoupdatingCurrent,
             now:          Date.init
         )
+
+        #if DEBUG
+        if let seededFeedingCount = UITestSeed.requestedFeedingCount {
+            UITestSeed.seed(seededFeedingCount, into: feedingStore)
+        }
+        #endif
+    }
+
+    private static func openModelContainer() -> ModelContainer {
+        do {
+            #if DEBUG
+            if UITestSeed.requestedFeedingCount != nil {
+                return try LocalStore.inMemoryContainer()
+            }
+            #endif
+            return try LocalStore.container(at: LocalStore.appGroupStoreURL(), readOnly: false)
+        } catch {
+            preconditionFailure("The local store didn't open: \(error)")
+        }
     }
 
     var body: some Scene {

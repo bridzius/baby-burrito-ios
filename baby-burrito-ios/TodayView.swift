@@ -3,11 +3,16 @@ import SwiftData
 import SwiftUI
 
 struct TodayView: View {
+    static let undoWindow: Duration = .seconds(5)
+
     let baby: LocalBaby
-    let updateBaby: (Baby) throws -> Void
+    let feedingStore: FeedingStore
 
     @Query(Self.lastFeedingDescriptor) private var lastFeedings: [LocalFeeding]
     @State private var isEditingFeedingInterval: Bool = false
+    @State private var historyFetchLimit: Int        = FeedingHistory.pageSize
+    @State private var pendingDeletion: DeletedFeeding?
+    @State private var isShowingSaveFailure: Bool     = false
 
     static var lastFeedingDescriptor: FetchDescriptor<LocalFeeding> {
         var descriptor: FetchDescriptor<LocalFeeding> = FetchDescriptor(
@@ -27,6 +32,18 @@ struct TodayView: View {
                         feedingIntervalMinutes: baby.feedingIntervalMinutes
                     )
                 }
+                .safeAreaInset(edge: .bottom) {
+                    if pendingDeletion != nil {
+                        UndoDeleteBar(undo: undoDeletion)
+                    }
+                }
+                .task(id: pendingDeletion?.feeding.id) {
+                    await confirmDeletionAfterUndoWindow()
+                }
+                .sensoryFeedback(trigger: pendingDeletion?.feeding.id) { _, deletedID in
+                    deletedID == nil ? nil : .impact(weight: .light)
+                }
+                .alert("Couldn't save. Try again.", isPresented: $isShowingSaveFailure) {}
         }
     }
 
@@ -60,6 +77,11 @@ struct TodayView: View {
                         }
                     }
                 }
+                FeedingHistory(
+                    fetchLimit:   historyFetchLimit,
+                    loadNextPage: { historyFetchLimit += FeedingHistory.pageSize },
+                    delete:       delete
+                )
             }
             .listStyle(.plain)
         } else {
@@ -77,6 +99,40 @@ struct TodayView: View {
     private func saveFeedingInterval(_ minutes: Int) throws {
         var updatedBaby: Baby              = baby.baby
         updatedBaby.feedingIntervalMinutes = minutes
-        try updateBaby(updatedBaby)
+        try feedingStore.updateBaby(baby, to: updatedBaby)
+    }
+
+    // A delete made inside another's Undo window confirms the earlier one, so it still syncs.
+    private func delete(_ localFeeding: LocalFeeding) {
+        if let pendingDeletion {
+            feedingStore.confirmDeletion(pendingDeletion)
+        }
+        do {
+            pendingDeletion = try feedingStore.delete(localFeeding)
+        } catch {
+            pendingDeletion      = nil
+            isShowingSaveFailure = true
+        }
+    }
+
+    private func undoDeletion() {
+        guard let deleted = pendingDeletion else { return }
+        do {
+            _ = try feedingStore.restore(deleted)
+            pendingDeletion = nil
+        } catch {
+            isShowingSaveFailure = true
+        }
+    }
+
+    private func confirmDeletionAfterUndoWindow() async {
+        guard let deleted = pendingDeletion else { return }
+        do {
+            try await Task.sleep(for: Self.undoWindow)
+        } catch {
+            return
+        }
+        feedingStore.confirmDeletion(deleted)
+        pendingDeletion = nil
     }
 }
