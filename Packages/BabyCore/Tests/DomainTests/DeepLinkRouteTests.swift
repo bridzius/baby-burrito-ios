@@ -46,4 +46,16 @@ struct DeepLinkRouteTests {
     @Test func opens_today_for_the_today_link() {
         #expect(route(.today) == .today(notice: nil))
     }
+
+    @Test func logs_the_given_details_even_without_a_last_feeding() {
+        let details: FeedingDetails = FeedingDetails(kind: .formula, amountMl: 90)
+
+        #expect(route(.logDetails(details), hasLastFeeding: false) == .log(details))
+    }
+
+    @Test func opens_today_without_logging_the_given_details_for_a_viewer() {
+        let details: FeedingDetails = FeedingDetails(kind: .formula, amountMl: 90)
+
+        #expect(route(.logDetails(details), canLog: false) == .today(notice: nil))
+    }
 }

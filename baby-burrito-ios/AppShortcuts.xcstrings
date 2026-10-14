@@ -1,0 +1,15 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Log ${kind} in ${applicationName}" : {},
+    "Log a bottle in ${applicationName}" : {},
+    "Log a feeding with ${applicationName}" : {},
+    "Log feeding in ${applicationName}" : {},
+    "Log nursing in ${applicationName}" : {},
+    "Log nursing on the ${side} in ${applicationName}" : {},
+    "Next feeding in ${applicationName}" : {},
+    "Repeat the last feeding in ${applicationName}" : {},
+    "When is the next feeding in ${applicationName}" : {}
+  },
+  "version" : "1.0"
+}

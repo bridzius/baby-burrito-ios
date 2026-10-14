@@ -3,12 +3,15 @@
   "strings" : {
     "Due \u00b7 %@ ago" : {},
     "Last %@ \u00b7 %@%@" : {},
+    "Log feeding" : {},
     "Next %@" : {},
     "Next feeding" : {},
     "Next in %@" : {},
     "No feedings yet" : {},
     "Open" : {},
     "Open Baby Burrito to get started" : {},
+    "Repeats the last feeding and shows it with Undo." : {},
+    "Repeats the last feeding in Baby Burrito." : {},
     "Tap to log next feeding" : {},
     "The countdown to the next feeding and the last feeding." : {}
   },
