@@ -216,6 +216,8 @@ struct TodayView: View {
             openLogSheet()
         case .logRepeat:
             repeatLastFeeding()
+        case .log(let details):
+            logFromShortcut(details)
         }
     }
 
@@ -240,15 +242,25 @@ struct TodayView: View {
     private func repeatLastFeeding() {
         guard let nextRepeat else { return }
         do {
-            let logged: LocalFeeding = try feedingStore.log(
-                fedAt:   nextRepeat.fedAt,
-                details: nextRepeat.details
-            )
-            savedFeedingCount += 1
-            logSheetMode       = .logged(logged)
+            try logAndConfirm(fedAt: nextRepeat.fedAt, details: nextRepeat.details)
         } catch {
             isShowingSaveFailure = true
         }
+    }
+
+    // A spoken amount can be out of range, so an invalid one opens the Log sheet to fix it.
+    private func logFromShortcut(_ details: FeedingDetails) {
+        do {
+            try logAndConfirm(fedAt: details.defaultFedAt(now: .now), details: details)
+        } catch {
+            openLogSheet()
+        }
+    }
+
+    private func logAndConfirm(fedAt: Date, details: FeedingDetails) throws {
+        let logged: LocalFeeding = try feedingStore.log(fedAt: fedAt, details: details)
+        savedFeedingCount += 1
+        logSheetMode       = .logged(logged)
     }
 
     // The sheet closes before the delete, so it never reads a deleted feeding. Nothing undoes

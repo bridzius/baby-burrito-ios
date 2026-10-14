@@ -45,4 +45,11 @@ final class DeepLinkTests: XCTestCase {
         XCTAssertFalse(app.buttons["Undo"].exists)
         XCTAssertEqual(rows.count, 1)
     }
+
+    func testTheBottleShortcutLinkLogsThatBottle() throws {
+        try open("babyburrito://log-feeding?kind=formula&amount=90")
+
+        XCTAssertTrue(app.buttons["Undo"].waitForExistence(timeout: Self.elementTimeout))
+        XCTAssertEqual(rows.count, 2)
+    }
 }
