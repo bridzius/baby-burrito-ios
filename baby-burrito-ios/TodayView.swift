@@ -30,6 +30,15 @@ struct TodayView: View {
         NavigationStack {
             content
                 .navigationTitle(baby.name)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        NavigationLink {
+                            SettingsView(localBaby: baby, feedingStore: feedingStore)
+                        } label: {
+                            Label("Settings", systemImage: "gearshape")
+                        }
+                    }
+                }
                 .sheet(isPresented: $isEditingFeedingInterval) {
                     FeedingIntervalEditor(
                         saveFeedingInterval:    saveFeedingInterval,

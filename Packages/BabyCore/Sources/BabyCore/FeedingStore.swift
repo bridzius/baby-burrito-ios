@@ -23,7 +23,7 @@ public final class FeedingStore {
     // MARK: Baby
 
     public func createBaby(_ baby: Baby) throws -> LocalBaby {
-        let validBaby: Baby = try baby.validated(calendar: calendar)
+        let validBaby: Baby = try baby.validated(calendar: calendar, earliestFedAt: nil)
         guard try existingBaby() == nil else { throw FeedingStoreError.babyLogAlreadyExists }
 
         let localBaby: LocalBaby = LocalBaby(baby: validBaby, zoneName: "BabyLog-\(UUID())")
@@ -35,7 +35,8 @@ public final class FeedingStore {
     }
 
     public func updateBaby(_ localBaby: LocalBaby, to baby: Baby) throws {
-        localBaby.apply(try baby.validated(calendar: calendar))
+        let earliestFedAt: Date? = try earliestFeeding()?.fedAt
+        localBaby.apply(try baby.validated(calendar: calendar, earliestFedAt: earliestFedAt))
         try save()
 
         syncQueue.enqueue(.saveBaby(zoneName: localBaby.zoneName))
@@ -131,6 +132,14 @@ public final class FeedingStore {
     private func existingBaby() throws -> LocalBaby? {
         var descriptor: FetchDescriptor<LocalBaby> = FetchDescriptor()
         descriptor.fetchLimit                      = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func earliestFeeding() throws -> LocalFeeding? {
+        var descriptor: FetchDescriptor<LocalFeeding> = FetchDescriptor(
+            sortBy: [SortDescriptor(\.fedAt)]
+        )
+        descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
     }
 

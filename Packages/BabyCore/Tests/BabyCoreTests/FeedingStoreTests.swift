@@ -81,6 +81,18 @@ struct FeedingStoreTests {
         #expect(baby.baby == .ona)
     }
 
+    @Test func rejects_a_birth_date_after_the_earliest_feeding() throws {
+        let baby: LocalBaby = try store.createBaby(.ona)
+        _ = try store.log(fedAt: .vilnius(2026, 3, 20, hour: 8), details: .formula90)
+        var bornLater: Baby = .ona
+        bornLater.birthDate = .vilnius(2026, 3, 21)
+
+        #expect(throws: BabyValidationError.birthDateAfterEarliestFeeding) {
+            try store.updateBaby(baby, to: bornLater)
+        }
+        #expect(baby.baby == .ona)
+    }
+
     // MARK: Feedings
 
     @Test func logs_a_feeding_in_the_baby_log() throws {

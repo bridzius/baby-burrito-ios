@@ -3,6 +3,7 @@ import Foundation
 public enum BabyValidationError: Error, CaseIterable, Equatable, Sendable {
     case emptyName
     case birthDateTooEarly
+    case birthDateAfterEarliestFeeding
     case feedingIntervalNotAllowed
 
     public var reason: String {
@@ -12,6 +13,11 @@ public enum BabyValidationError: Error, CaseIterable, Equatable, Sendable {
         case .birthDateTooEarly:
             return String(
                 localized: "Choose a birth date on or after 1 January 2026.",
+                bundle: .module
+            )
+        case .birthDateAfterEarliestFeeding:
+            return String(
+                localized: "Choose a birth date on or before the first feeding.",
                 bundle: .module
             )
         case .feedingIntervalNotAllowed:

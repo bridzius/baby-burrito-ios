@@ -10,6 +10,9 @@
     "Choose a birth date on or after 1 January 2026." : {
       "extractionState" : "manual"
     },
+    "Choose a birth date on or before the first feeding." : {
+      "extractionState" : "manual"
+    },
     "Choose a side." : {
       "extractionState" : "manual"
     },
