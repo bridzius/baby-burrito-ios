@@ -16,6 +16,7 @@ struct TodayView: View {
     @State private var logSheetMode: LogSheetMode?
     @State private var savedFeedingCount: Int         = 0
     @State private var undoneRepeatCount: Int         = 0
+    @State private var scrollTargetDay: Date?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     static var lastFeedingDescriptor: FetchDescriptor<LocalFeeding> {
@@ -73,41 +74,9 @@ struct TodayView: View {
     @ViewBuilder
     private var content: some View {
         if let lastFeeding = lastFeedings.first?.feeding {
-            List {
-                Section("Next feeding") {
-                    NextFeedingView(
-                        lastFeeding:            lastFeeding,
-                        feedingIntervalMinutes: baby.feedingIntervalMinutes,
-                        editFeedingInterval:    { isEditingFeedingInterval = true }
-                    )
-                }
-                Section("Last") {
-                    LastFeedingCard(feeding: lastFeeding)
-                }
-                Section {
-                    TimelineView(.everyMinute) { context in
-                        Last24HoursSummary(now: context.date)
-                    }
-                } header: {
-                    HStack {
-                        Text("Last 24 h")
-                        Spacer()
-                        NavigationLink {
-                            TrendsView()
-                        } label: {
-                            Label("Trends", systemImage: "chart.bar.xaxis")
-                                .labelStyle(.iconOnly)
-                        }
-                    }
-                }
-                FeedingHistory(
-                    fetchLimit:   historyFetchLimit,
-                    loadNextPage: { historyFetchLimit += FeedingHistory.pageSize },
-                    edit:         { logSheetMode = .edit($0) },
-                    delete:       delete
-                )
+            ScrollViewReader { scrollProxy in
+                feedingList(lastFeeding: lastFeeding, scrollProxy: scrollProxy)
             }
-            .listStyle(.plain)
         } else {
             ContentUnavailableView {
                 Label {
@@ -123,6 +92,52 @@ struct TodayView: View {
                 .buttonStyle(.glassProminent)
             }
         }
+    }
+
+    private func feedingList(lastFeeding: Feeding, scrollProxy: ScrollViewProxy) -> some View {
+        List {
+            Section("Next feeding") {
+                NextFeedingView(
+                    lastFeeding:            lastFeeding,
+                    feedingIntervalMinutes: baby.feedingIntervalMinutes,
+                    editFeedingInterval:    { isEditingFeedingInterval = true }
+                )
+            }
+            Section("Last") {
+                LastFeedingCard(feeding: lastFeeding)
+            }
+            Section {
+                TimelineView(.everyMinute) { context in
+                    Last24HoursSummary(now: context.date)
+                }
+            } header: {
+                HStack {
+                    Text("Last 24 h")
+                    Spacer()
+                    NavigationLink {
+                        TrendsView(now: .now, showDay: showDay)
+                    } label: {
+                        Label("Trends", systemImage: "chart.bar.xaxis")
+                            .labelStyle(.iconOnly)
+                    }
+                }
+            }
+            FeedingHistory(
+                fetchLimit:      historyFetchLimit,
+                scrollProxy:     scrollProxy,
+                scrollTargetDay: $scrollTargetDay,
+                loadNextPage:    { historyFetchLimit += FeedingHistory.pageSize },
+                edit:            { logSheetMode = .edit($0) },
+                delete:          delete
+            )
+        }
+        .listStyle(.plain)
+    }
+
+    // Loads enough history to hold that day before scrolling to it.
+    private func showDay(_ dayStart: Date, feedingsSinceDayStart: Int) {
+        historyFetchLimit = max(historyFetchLimit, feedingsSinceDayStart + FeedingHistory.pageSize)
+        scrollTargetDay   = dayStart
     }
 
     @ViewBuilder
