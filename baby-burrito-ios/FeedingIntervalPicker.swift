@@ -10,28 +10,14 @@ struct FeedingIntervalPicker: View {
     @Binding var feedingIntervalMinutes: Int
 
     var body: some View {
-        Stepper(
-            value: $feedingIntervalMinutes,
-            in:    Baby.allowedFeedingIntervalMinutes,
-            step:  Baby.feedingIntervalStepMinutes
-        ) {
-            Text(Duration.minutes(feedingIntervalMinutes).formatted(.hoursAndMinutes))
-                .numerals(.title3)
-        }
-
-        HStack {
-            ForEach(Self.chipMinutes, id: \.self) { minutes in
-                chip(minutes: minutes)
-            }
-        }
-    }
-
-    private func chip(minutes: Int) -> some View {
-        Button(Duration.minutes(minutes).formatted(Self.chipFormat)) {
-            feedingIntervalMinutes = minutes
-        }
-        .buttonStyle(.bordered)
-        .tint(minutes == feedingIntervalMinutes ? .accentColor : .secondary)
-        .monospacedDigit()
+        ChipStepper(
+            chipValues: Self.chipMinutes,
+            range:      Baby.allowedFeedingIntervalMinutes,
+            step:       Baby.feedingIntervalStepMinutes,
+            tint:       .accentColor,
+            valueLabel: { Duration.minutes($0).formatted(.hoursAndMinutes) },
+            chipLabel:  { Duration.minutes($0).formatted(Self.chipFormat) },
+            value:      $feedingIntervalMinutes
+        )
     }
 }

@@ -10,9 +10,10 @@ enum UITestSeed {
     static let feedingIntervalMinutes: Int      = 180
     static let earliestBirthDay: DateComponents = Baby.earliestBirthDay
 
+    // Present, even as 0, means "seed": 0 gives a baby with no feedings.
     static var requestedFeedingCount: Int? {
-        let count: Int = UserDefaults.standard.integer(forKey: feedingCountKey)
-        return count > 0 ? count : nil
+        guard UserDefaults.standard.object(forKey: feedingCountKey) != nil else { return nil }
+        return UserDefaults.standard.integer(forKey: feedingCountKey)
     }
 
     @MainActor
