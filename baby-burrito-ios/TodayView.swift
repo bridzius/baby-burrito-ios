@@ -3,7 +3,10 @@ import SwiftData
 import SwiftUI
 
 struct TodayView: View {
-    static let undoWindow: Duration = .seconds(5)
+    static let undoWindow: Duration    = .seconds(5)
+    static let noticeDuration: Duration = .seconds(5)
+    // Viewers come with sharing roles (#33); until then this phone always owns its baby log.
+    static let canLog: Bool             = true
 
     let baby: LocalBaby
     let feedingStore: FeedingStore
@@ -17,6 +20,7 @@ struct TodayView: View {
     @State private var savedFeedingCount: Int         = 0
     @State private var undoneRepeatCount: Int         = 0
     @State private var scrollTargetDay: Date?
+    @State private var deepLinkNotice: DeepLinkRoute.Notice?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     static var lastFeedingDescriptor: FetchDescriptor<LocalFeeding> {
@@ -48,6 +52,9 @@ struct TodayView: View {
                 }
                 .safeAreaInset(edge: .bottom) {
                     VStack(spacing: 0) {
+                        if let deepLinkNotice {
+                            DeepLinkNoticeBar(notice: deepLinkNotice)
+                        }
                         if pendingDeletion != nil {
                             UndoDeleteBar(undo: undoDeletion)
                         }
@@ -57,6 +64,10 @@ struct TodayView: View {
                             openLogSheet: openLogSheet
                         )
                     }
+                }
+                .onOpenURL(perform: openDeepLink)
+                .task(id: deepLinkNotice) {
+                    await clearDeepLinkNoticeAfterAWhile()
                 }
                 .task(id: pendingDeletion?.feeding.id) {
                     await confirmDeletionAfterUndoWindow()
@@ -173,6 +184,38 @@ struct TodayView: View {
                 draft:     .editing(localFeeding.feeding)
             )
         }
+    }
+
+    // First run has no Today, so a link opened then is simply not handled.
+    private func openDeepLink(_ url: URL) {
+        guard let link = DeepLink(url: url) else { return }
+        let route: DeepLinkRoute = DeepLinkRoute(
+            link:            link,
+            babyLogZoneName: baby.zoneName,
+            canLog:          Self.canLog,
+            hasLastFeeding:  !lastFeedings.isEmpty
+        )
+
+        switch route {
+        case .firstRun:
+            return
+        case .today(let notice):
+            deepLinkNotice = notice
+        case .openLogSheet:
+            openLogSheet()
+        case .logRepeat:
+            repeatLastFeeding()
+        }
+    }
+
+    private func clearDeepLinkNoticeAfterAWhile() async {
+        guard deepLinkNotice != nil else { return }
+        do {
+            try await Task.sleep(for: Self.noticeDuration)
+        } catch {
+            return
+        }
+        deepLinkNotice = nil
     }
 
     private func openLogSheet() {
