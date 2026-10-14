@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <clipPath id="wrap">
+      <rect x="292" y="150" width="440" height="760" rx="220"/>
+    </clipPath>
+  </defs>
+  <g transform="rotate(-35 512 512)">
+    <rect x="292" y="150" width="440" height="760" rx="220" fill="#E9B26A"/>
+    <g clip-path="url(#wrap)" fill="#C98A3E">
+      <path d="M272 520 Q512 440 752 520 L752 620 Q512 540 272 620 Z"/>
+      <path d="M272 700 Q512 620 752 700 L752 760 Q512 680 272 760 Z"/>
+    </g>
+  </g>
+</svg>
