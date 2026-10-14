@@ -1,0 +1,13 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Due \u00b7 %@ ago" : {},
+    "Last %@ \u00b7 %@%@" : {},
+    "Next %@" : {},
+    "Next in %@" : {},
+    "No feedings yet" : {},
+    "Open" : {},
+    "Tap to log next feeding" : {}
+  },
+  "version" : "1.0"
+}

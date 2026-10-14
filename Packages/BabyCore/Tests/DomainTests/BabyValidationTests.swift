@@ -25,7 +25,8 @@ struct BabyValidationTests {
     }
 
     @Test func accepts_a_birth_date_on_the_first_allowed_day() throws {
-        _ = try baby(birthDate: .vilnius(2026, 1, 1)).validated(calendar: calendar, earliestFedAt: nil)
+        _ = try baby(birthDate: .vilnius(2026, 1, 1))
+            .validated(calendar: calendar, earliestFedAt: nil)
     }
 
     @Test func rejects_a_birth_date_before_2026() {
@@ -37,13 +38,15 @@ struct BabyValidationTests {
 
     @Test(arguments: [15, 30, 180, 705, 720])
     func accepts_feeding_intervals_within_bounds_in_quarter_hours(minutes: Int) throws {
-        _ = try baby(feedingIntervalMinutes: minutes).validated(calendar: calendar, earliestFedAt: nil)
+        _ = try baby(feedingIntervalMinutes: minutes)
+            .validated(calendar: calendar, earliestFedAt: nil)
     }
 
     @Test(arguments: [0, 14, 20, 179, 721, 735])
     func rejects_feeding_intervals_outside_bounds_or_steps(minutes: Int) {
         #expect(throws: BabyValidationError.feedingIntervalNotAllowed) {
-            try baby(feedingIntervalMinutes: minutes).validated(calendar: calendar, earliestFedAt: nil)
+            try baby(feedingIntervalMinutes: minutes)
+                .validated(calendar: calendar, earliestFedAt: nil)
         }
     }
 
