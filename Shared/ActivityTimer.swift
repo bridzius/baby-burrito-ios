@@ -1,22 +1,24 @@
 import SwiftUI
 
 // System-rendered clocks, so the activity never needs an update to keep ticking. Dimmed
-// displays (Always-On, the watch) drop the seconds.
+// displays (Always-On, the watch) show two fields, hours and minutes, so seconds drop once an
+// hour or more is left. A minute maxPrecision would spell the time out in words instead.
 enum ActivityTimer {
-    static let secondPrecision: Duration = .seconds(1)
-    static let minutePrecision: Duration = .seconds(60)
+    static let allFields: Int     = 3
+    static let dimmedFields: Int  = 2
 
     static func countdown(to nextFeedingAt: Date, isLuminanceReduced: Bool) -> Text {
         Text(.currentDate, format: .timer(
             countingDownIn: Date.distantPast..<nextFeedingAt,
-            maxPrecision:   isLuminanceReduced ? minutePrecision : secondPrecision
+            maxFieldCount:  isLuminanceReduced ? dimmedFields : allFields
         ))
     }
 
     static func countUp(from nextFeedingAt: Date, isLuminanceReduced: Bool) -> Text {
         Text(.currentDate, format: .stopwatch(
-            startingAt:   nextFeedingAt,
-            maxPrecision: isLuminanceReduced ? minutePrecision : secondPrecision
+            startingAt:    nextFeedingAt,
+            maxFieldCount: isLuminanceReduced ? dimmedFields : allFields,
+            maxPrecision:  .seconds(1)
         ))
     }
 

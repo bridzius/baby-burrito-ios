@@ -6,6 +6,7 @@ import SwiftUI
 struct BabyBurritoApp: App {
     let modelContainer: ModelContainer
     let feedingStore: FeedingStore
+    let activityController: FeedingActivityController
 
     init() {
         modelContainer = Self.openModelContainer()
@@ -15,6 +16,7 @@ struct BabyBurritoApp: App {
             calendar:     .autoupdatingCurrent,
             now:          Date.init
         )
+        activityController = FeedingActivityController(activities: SystemFeedingActivities())
 
         #if DEBUG
         if let seededFeedingCount = UITestSeed.requestedFeedingCount {
@@ -38,7 +40,7 @@ struct BabyBurritoApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(feedingStore: feedingStore)
+            RootView(feedingStore: feedingStore, activityController: activityController)
                 .symbolEffectsFollowReduceMotion()
         }
         .modelContainer(modelContainer)

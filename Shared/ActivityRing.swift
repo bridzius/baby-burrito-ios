@@ -18,7 +18,7 @@ struct ActivityRing: View {
                 ProgressView(value: 1) { symbol }
             } else {
                 ProgressView(timerInterval: lastFedAt...nextFeedingAt, countsDown: false) {
-                    symbol
+                    EmptyView()
                 } currentValueLabel: {
                     symbol
                 }

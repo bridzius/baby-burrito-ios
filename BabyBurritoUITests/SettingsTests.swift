@@ -39,4 +39,22 @@ final class SettingsTests: XCTestCase {
         XCTAssertTrue(app.buttons["Continue"].waitForExistence(timeout: Self.elementTimeout))
         XCTAssertEqual(rows.count, 0)
     }
+
+    func testFirstRunCreatesTheBabyAfterTheLockScreenStep() {
+        testDeleteAllDataReturnsToFirstRun()
+
+        let name: XCUIElement = app.textFields["Name"]
+        name.tap()
+        name.typeText("Ona")
+        app.buttons["Choose the birth date"].tap()
+        app.buttons["Continue"].tap()
+
+        XCTAssertTrue(app.buttons["Not now"].waitForExistence(timeout: Self.elementTimeout))
+        app.buttons["Not now"].tap()
+
+        XCTAssertTrue(app.buttons["Log the first feeding"].waitForExistence(
+            timeout: Self.elementTimeout
+        ))
+        XCTAssertTrue(app.navigationBars["Ona"].exists)
+    }
 }

@@ -16,10 +16,11 @@ struct FeedingLiveActivity: Widget {
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.bottom) {
                     ActivityLockScreenView(
-                        babyName: context.attributes.babyName,
-                        content:  content,
-                        canLog:   context.attributes.canLog,
-                        isDue:    context.isStale
+                        babyName:  context.attributes.babyName,
+                        content:   content,
+                        canLog:    context.attributes.canLog,
+                        isDue:     context.isStale,
+                        showsRing: true
                     )
                 }
             } compactLeading: {
@@ -77,10 +78,11 @@ private struct ActivityContentView: View {
                 .widgetURL(DeepLink.today.url)
         default:
             ActivityLockScreenView(
-                babyName: context.attributes.babyName,
-                content:  context.state,
-                canLog:   context.attributes.canLog,
-                isDue:    context.isStale
+                babyName:  context.attributes.babyName,
+                content:   context.state,
+                canLog:    context.attributes.canLog,
+                isDue:     context.isStale,
+                showsRing: true
             )
             .widgetURL(FeedingLiveActivity.tapURL(for: context.attributes))
         }

@@ -5,6 +5,7 @@ import SwiftUI
 // Every valid change saves at once, like the system Settings app; an invalid one shows why.
 struct SettingsView: View {
     let localBaby: LocalBaby
+    let lastFeeding: Feeding?
     let feedingStore: FeedingStore
 
     @Query(Self.earliestFeedingDescriptor) private var earliestFeedings: [LocalFeeding]
@@ -12,8 +13,9 @@ struct SettingsView: View {
     @State private var isConfirmingDeletion: Bool = false
     @State private var isShowingSaveFailure: Bool = false
 
-    init(localBaby: LocalBaby, feedingStore: FeedingStore) {
+    init(localBaby: LocalBaby, lastFeeding: Feeding?, feedingStore: FeedingStore) {
         self.localBaby    = localBaby
+        self.lastFeeding  = lastFeeding
         self.feedingStore = feedingStore
         _baby             = State(initialValue: localBaby.baby)
     }
@@ -52,6 +54,15 @@ struct SettingsView: View {
                 baby:          $baby,
                 earliestFedAt: earliestFedAt,
                 invalidReason: invalidReason
+            )
+
+            LockScreenSection(
+                babyName: baby.name,
+                content:  FeedingActivityContent(
+                    lastFeeding:            lastFeeding,
+                    feedingIntervalMinutes: baby.feedingIntervalMinutes,
+                    lastLoggedBy:           nil
+                )
             )
 
             Section {
