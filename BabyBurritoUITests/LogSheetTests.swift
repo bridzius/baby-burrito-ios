@@ -38,7 +38,8 @@ final class LogSheetTests: XCTestCase {
         app.buttons["20"].tap()
         tapDone()
 
-        XCTAssertTrue(row(containing: "R · 20 min").waitForExistence(timeout: Self.elementTimeout))
+        let nursing: XCUIElement = row(containing: "right breast, 20 minutes")
+        XCTAssertTrue(nursing.waitForExistence(timeout: Self.elementTimeout))
     }
 
     func testLogsABottleWithKindAndAmount() {
@@ -50,7 +51,8 @@ final class LogSheetTests: XCTestCase {
         app.buttons["120"].tap()
         tapDone()
 
-        XCTAssertTrue(row(containing: "120 mL").waitForExistence(timeout: Self.elementTimeout))
+        let bottle: XCUIElement = row(containing: "120 milli")
+        XCTAssertTrue(bottle.waitForExistence(timeout: Self.elementTimeout))
     }
 
     func testEditingChangesTheSameFeeding() {

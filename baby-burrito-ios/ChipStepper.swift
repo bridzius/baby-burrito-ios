@@ -24,7 +24,7 @@ struct ChipStepper: View {
                     value = chipValue
                 }
                 .buttonStyle(.bordered)
-                .tint(chipValue == value ? tint : .secondary)
+                .tint(chipValue == value ? tint : .primary)
                 .monospacedDigit()
                 .accessibilityAddTraits(chipValue == value ? .isSelected : [])
             }

@@ -127,3 +127,8 @@ private func todayPreview(feedings: [PreviewFeeding]) -> some View {
     todayPreview(feedings: PreviewFeeding.mixedKinds)
         .preferredColorScheme(.dark)
 }
+
+#Preview("Mixed kinds, AX5") {
+    todayPreview(feedings: PreviewFeeding.mixedKinds)
+        .dynamicTypeSize(.accessibility5)
+}

@@ -23,6 +23,7 @@ struct TodayView: View {
     @State private var scrollTargetDay: Date?
     @State private var deepLinkNotice: DeepLinkRoute.Notice?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize: DynamicTypeSize
 
     static var lastFeedingDescriptor: FetchDescriptor<LocalFeeding> {
         var descriptor: FetchDescriptor<LocalFeeding> = FetchDescriptor(
@@ -37,6 +38,11 @@ struct TodayView: View {
             content
                 .navigationTitle(baby.name)
                 .toolbar {
+                    if dynamicTypeSize.isAccessibilitySize {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button("Log feeding", systemImage: "plus", action: openLogSheet)
+                        }
+                    }
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink {
                             SettingsView(
@@ -64,9 +70,10 @@ struct TodayView: View {
                             UndoDeleteBar(undo: undoDeletion)
                         }
                         QuickLogBar(
-                            nextRepeat:   nextRepeat?.details,
-                            repeatLast:   repeatLastFeeding,
-                            openLogSheet: openLogSheet
+                            nextRepeat:     nextRepeat?.details,
+                            showsLogButton: !dynamicTypeSize.isAccessibilitySize,
+                            repeatLast:     repeatLastFeeding,
+                            openLogSheet:   openLogSheet
                         )
                     }
                 }

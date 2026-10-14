@@ -6,6 +6,8 @@ struct QuickLogBar: View {
     static let repeatIdentifier: String = "repeatButton"
 
     let nextRepeat: FeedingDetails?
+    // At accessibility sizes Repeat takes the whole width and ＋ moves to the top toolbar.
+    let showsLogButton: Bool
     let repeatLast: () -> Void
     let openLogSheet: () -> Void
 
@@ -24,13 +26,15 @@ struct QuickLogBar: View {
                     .accessibilityIdentifier(Self.repeatIdentifier)
                 }
 
-                Button(action: openLogSheet) {
-                    Label("Log feeding", systemImage: "plus")
-                        .labelStyle(.iconOnly)
-                        .font(.title2.weight(.semibold))
-                        .frame(width: Self.buttonHeight, height: Self.buttonHeight)
+                if showsLogButton {
+                    Button(action: openLogSheet) {
+                        Label("Log feeding", systemImage: "plus")
+                            .labelStyle(.iconOnly)
+                            .font(.title2.weight(.semibold))
+                            .frame(width: Self.buttonHeight, height: Self.buttonHeight)
+                    }
+                    .buttonStyle(.glass)
                 }
-                .buttonStyle(.glass)
             }
         }
         .padding(.horizontal)
