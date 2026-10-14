@@ -4,10 +4,13 @@
     "Due \u00b7 %@ ago" : {},
     "Last %@ \u00b7 %@%@" : {},
     "Next %@" : {},
+    "Next feeding" : {},
     "Next in %@" : {},
     "No feedings yet" : {},
     "Open" : {},
-    "Tap to log next feeding" : {}
+    "Open Baby Burrito to get started" : {},
+    "Tap to log next feeding" : {},
+    "The countdown to the next feeding and the last feeding." : {}
   },
   "version" : "1.0"
 }

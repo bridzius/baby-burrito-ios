@@ -1,10 +1,11 @@
 import BabyCore
 import OSLog
 import SwiftUI
+import WidgetKit
 
 extension View {
-    // Keeps the Live Activity in step with the baby, the last feeding, the preference and
-    // whether the app is in the foreground.
+    // Keeps the Live Activity and the Home Screen widget in step with the baby, the last
+    // feeding, the preference and whether the app is in the foreground.
     func liveActivityRefresh(
         baby:        LocalBaby,
         lastFeeding: Feeding?,
@@ -53,9 +54,13 @@ private struct LiveActivityRefresh: ViewModifier {
             isPreferenceOn: isPreferenceOn,
             isForeground:   scenePhase == .active
         )
-        content.task(id: input) {
-            await refresh(input)
-        }
+        content
+            .task(id: input) {
+                await refresh(input)
+            }
+            .onChange(of: input.desired) {
+                WidgetCenter.shared.reloadAllTimelines()
+            }
     }
 
     // A refused start means Live Activities are off for the app; Settings explains that.
