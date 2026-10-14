@@ -16,24 +16,24 @@ struct SidePicker: View {
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
-                half(.left, title: "Left")
-                half(.right, title: "Right")
+                half(.left)
+                half(.right)
             }
-            button(.both, title: "Both")
+            button(.both)
                 .frame(maxWidth: .infinity, minHeight: Self.minimumTapHeight)
         }
     }
 
-    private func half(_ option: Side, title: LocalizedStringKey) -> some View {
-        button(option, title: title)
+    private func half(_ option: Side) -> some View {
+        button(option)
             .frame(maxWidth: .infinity, minHeight: Self.halfHeight)
     }
 
-    private func button(_ option: Side, title: LocalizedStringKey) -> some View {
+    private func button(_ option: Side) -> some View {
         Button {
             withAnimation(.spring(reducingMotion: reduceMotion)) { side = option }
         } label: {
-            Text(title)
+            Text(option.title)
                 .font(.headline)
                 .foregroundStyle(option == side ? FeedingKind.nursing.color : .secondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

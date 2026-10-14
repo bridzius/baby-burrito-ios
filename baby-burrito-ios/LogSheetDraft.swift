@@ -38,6 +38,22 @@ struct LogSheetDraft {
         LogSheetDraft(details: feeding.details, fedAt: feeding.fedAt, isFedAtChosen: true)
     }
 
+    func invalidReason(birthDate: Date, now: Date) -> String? {
+        do {
+            _ = try Feeding.validated(
+                id:        UUID(),
+                fedAt:     fedAt,
+                details:   details,
+                birthDate: birthDate,
+                now:       now,
+                calendar:  .autoupdatingCurrent
+            )
+            return nil
+        } catch {
+            return error.reason
+        }
+    }
+
     mutating func refreshDefaultFedAt(now: Date) {
         guard !isFedAtChosen else { return }
         fedAt = details.defaultFedAt(now: now)

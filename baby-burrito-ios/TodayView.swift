@@ -15,6 +15,8 @@ struct TodayView: View {
     @State private var isShowingSaveFailure: Bool     = false
     @State private var logSheetMode: LogSheetMode?
     @State private var savedFeedingCount: Int         = 0
+    @State private var undoneRepeatCount: Int         = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
 
     static var lastFeedingDescriptor: FetchDescriptor<LocalFeeding> {
         var descriptor: FetchDescriptor<LocalFeeding> = FetchDescriptor(
@@ -35,8 +37,15 @@ struct TodayView: View {
                     )
                 }
                 .safeAreaInset(edge: .bottom) {
-                    if pendingDeletion != nil {
-                        UndoDeleteBar(undo: undoDeletion)
+                    VStack(spacing: 0) {
+                        if pendingDeletion != nil {
+                            UndoDeleteBar(undo: undoDeletion)
+                        }
+                        QuickLogBar(
+                            nextRepeat:   nextRepeat?.details,
+                            repeatLast:   repeatLastFeeding,
+                            openLogSheet: openLogSheet
+                        )
                     }
                 }
                 .task(id: pendingDeletion?.feeding.id) {
@@ -48,14 +57,7 @@ struct TodayView: View {
                 .alert("Couldn't save. Try again.", isPresented: $isShowingSaveFailure) {}
                 .sheet(item: $logSheetMode, content: logSheet)
                 .sensoryFeedback(.success, trigger: savedFeedingCount)
-                .toolbar {
-                    ToolbarSpacer(placement: .bottomBar)
-                    ToolbarItem(placement: .bottomBar) {
-                        Button("Log feeding", systemImage: "plus") {
-                            logSheetMode = .log(after: lastFeedings.first?.feeding)
-                        }
-                    }
-                }
+                .sensoryFeedback(.impact(weight: .light), trigger: undoneRepeatCount)
         }
     }
 
@@ -114,26 +116,75 @@ struct TodayView: View {
         }
     }
 
+    @ViewBuilder
     private func logSheet(_ mode: LogSheetMode) -> some View {
         switch mode {
         case .log(let lastFeeding):
             LogSheet(
                 title:     "Log feeding",
-                draft:     .logging(after: lastFeeding, now: .now),
-                birthDate: baby.birthDate
-            ) { fedAt, details in
-                _ = try feedingStore.log(fedAt: fedAt, details: details)
-                savedFeedingCount += 1
-            }
+                birthDate: baby.birthDate,
+                save:      { fedAt, details in
+                    _ = try feedingStore.log(fedAt: fedAt, details: details)
+                    savedFeedingCount += 1
+                },
+                draft:     .logging(after: lastFeeding, now: .now)
+            )
         case .edit(let localFeeding):
             LogSheet(
                 title:     "Edit feeding",
-                draft:     .editing(localFeeding.feeding),
-                birthDate: baby.birthDate
-            ) { fedAt, details in
-                try feedingStore.update(localFeeding, fedAt: fedAt, details: details)
-                savedFeedingCount += 1
+                birthDate: baby.birthDate,
+                save:      { fedAt, details in
+                    try feedingStore.update(localFeeding, fedAt: fedAt, details: details)
+                    savedFeedingCount += 1
+                },
+                draft:     .editing(localFeeding.feeding)
+            )
+        case .logged(let localFeeding):
+            LoggedConfirmation(
+                birthDate: baby.birthDate,
+                update:    { fedAt, details in
+                    try feedingStore.update(localFeeding, fedAt: fedAt, details: details)
+                },
+                undo:      { undoRepeat(localFeeding) },
+                draft:     .editing(localFeeding.feeding)
+            )
+        }
+    }
+
+    private func openLogSheet() {
+        logSheetMode = .log(after: lastFeedings.first?.feeding)
+    }
+
+    private var nextRepeat: Feeding? {
+        Feeding.repeating(lastFeedings.first?.feeding, id: UUID(), now: .now)
+    }
+
+    private func repeatLastFeeding() {
+        guard let nextRepeat else { return }
+        do {
+            let logged: LocalFeeding = try feedingStore.log(
+                fedAt:   nextRepeat.fedAt,
+                details: nextRepeat.details
+            )
+            savedFeedingCount += 1
+            logSheetMode       = .logged(logged)
+        } catch {
+            isShowingSaveFailure = true
+        }
+    }
+
+    // The sheet closes before the delete, so it never reads a deleted feeding. Nothing undoes
+    // this Undo, so the CloudKit delete is confirmed at once.
+    private func undoRepeat(_ localFeeding: LocalFeeding) {
+        logSheetMode = nil
+        do {
+            let deleted: DeletedFeeding = try withAnimation(.spring(reducingMotion: reduceMotion)) {
+                try feedingStore.delete(localFeeding)
             }
+            feedingStore.confirmDeletion(deleted)
+            undoneRepeatCount += 1
+        } catch {
+            isShowingSaveFailure = true
         }
     }
 
