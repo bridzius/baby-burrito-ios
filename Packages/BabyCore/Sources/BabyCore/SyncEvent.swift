@@ -20,9 +20,11 @@ public struct DeletedRecord: Sendable {
 public struct FailedRecordSave: Sendable {
     public let record: CKRecord
     public let errorCode: CKError.Code
+    public let serverRecord: CKRecord?
 
-    public init(record: CKRecord, errorCode: CKError.Code) {
-        self.record    = record
-        self.errorCode = errorCode
+    public init(record: CKRecord, errorCode: CKError.Code, serverRecord: CKRecord? = nil) {
+        self.record       = record
+        self.errorCode    = errorCode
+        self.serverRecord = serverRecord
     }
 }

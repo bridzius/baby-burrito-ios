@@ -66,12 +66,35 @@ public final class SyncCoordinator: SyncQueue {
                 zoneChanges:   [.saveZone(CKRecordZone(zoneID: recordID.zoneID))],
                 recordChanges: [.saveRecord(recordID)]
             ))
+        case .serverRecordChanged:
+            guard let serverRecord = failure.serverRecord else {
+                preconditionFailure("CloudKit reported a changed server record without it")
+            }
+            try resolveConflict(with: serverRecord, engine: engine)
         case .unknownItem:
             try records.clearSystemFields(of: recordID)
             engine.add(CloudChanges(recordChanges: [.saveRecord(recordID)]))
         default:
             let code: Int = failure.errorCode.rawValue
             SyncLog.logger.error("Sending \(recordID.recordName) failed with code \(code)")
+        }
+    }
+
+    private func resolveConflict(with serverRecord: CKRecord, engine: any SyncEngine) throws {
+        let recordID: CKRecord.ID = serverRecord.recordID
+        let resolution: ConflictResolution = ConflictResolver.resolve(
+            localModifiedAt:  try records.clientModifiedAt(of: recordID),
+            serverModifiedAt: RecordMapping.clientModifiedAt(of: serverRecord)
+        )
+
+        switch resolution {
+        case .keepServer:
+            try records.save([serverRecord])
+        case .resendLocal:
+            try records.storeSystemFields(of: [serverRecord])
+            engine.add(CloudChanges(recordChanges: [.saveRecord(recordID)]))
+        case .keepLocalDeletion:
+            break
         }
     }
 }
