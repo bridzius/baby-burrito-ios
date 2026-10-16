@@ -5,7 +5,7 @@ public enum LocalStore {
     public static let appGroupIdentifier: String = "group.com.bridzius.babyburrito"
     public static let storeFileName: String      = "BabyBurrito.store"
 
-    static var schema: Schema { Schema([LocalBaby.self, LocalFeeding.self]) }
+    static var schema: Schema { Schema([LocalBaby.self, LocalFeeding.self, LocalWeighing.self]) }
 
     public static func appGroupStoreURL() -> URL {
         let fileManager: FileManager = .default

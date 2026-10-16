@@ -23,7 +23,9 @@ public final class FeedingStore {
     // MARK: Baby
 
     public func createBaby(_ baby: Baby) throws -> LocalBaby {
-        let validBaby: Baby = try baby.validated(calendar: calendar, earliestFedAt: nil)
+        let validBaby: Baby = try baby.validated(
+            calendar: calendar, earliestFedAt: nil, earliestWeighedOn: nil
+        )
         guard try existingBaby() == nil else { throw FeedingStoreError.babyLogAlreadyExists }
 
         let localBaby: LocalBaby = LocalBaby(baby: validBaby, zoneName: "BabyLog-\(UUID())")
@@ -35,8 +37,12 @@ public final class FeedingStore {
     }
 
     public func updateBaby(_ localBaby: LocalBaby, to baby: Baby) throws {
-        let earliestFedAt: Date? = try earliestFeeding()?.fedAt
-        localBaby.apply(try baby.validated(calendar: calendar, earliestFedAt: earliestFedAt))
+        let validBaby: Baby = try baby.validated(
+            calendar:          calendar,
+            earliestFedAt:     try earliestFeeding()?.fedAt,
+            earliestWeighedOn: try earliestWeighing()?.weighedOn
+        )
+        localBaby.apply(validBaby)
         try save()
 
         syncQueue.enqueue(.saveBaby(zoneName: localBaby.zoneName))
@@ -106,6 +112,39 @@ public final class FeedingStore {
         return localFeeding
     }
 
+    // MARK: Weighings
+
+    public func logWeighing(weighedOn: Date, grams: Int) throws -> LocalWeighing {
+        let localBaby: LocalBaby = try currentBaby()
+        let weighing: Weighing   = try Weighing.validated(
+            weighedOn: weighedOn,
+            grams:     grams,
+            birthDate: localBaby.birthDate,
+            now:       now(),
+            calendar:  calendar
+        )
+
+        let localWeighing: LocalWeighing = try existingWeighing(on: weighing.weighedOn)
+            ?? insertedWeighing(weighing, zoneName: localBaby.zoneName)
+        localWeighing.apply(weighing, modifiedAt: now())
+        try save()
+
+        syncQueue.enqueue(.saveWeighing(
+            weighedOn: weighing.weighedOn, zoneName: localBaby.zoneName
+        ))
+        return localWeighing
+    }
+
+    public func deleteWeighing(_ localWeighing: LocalWeighing) throws {
+        let change: PendingChange = .deleteWeighing(
+            weighedOn: localWeighing.weighedOn, zoneName: localWeighing.zoneName
+        )
+        modelContext.delete(localWeighing)
+        try save()
+
+        syncQueue.enqueue(change)
+    }
+
     // MARK: Everything
 
     public func deleteEverything() throws {
@@ -113,6 +152,7 @@ public final class FeedingStore {
         let zoneNames: [String]      = localBabies.map(\.zoneName)
 
         try modelContext.delete(model: LocalFeeding.self)
+        try modelContext.delete(model: LocalWeighing.self)
         try modelContext.delete(model: LocalBaby.self)
         try save()
 
@@ -141,6 +181,30 @@ public final class FeedingStore {
         )
         descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
+    }
+
+    private func earliestWeighing() throws -> LocalWeighing? {
+        var descriptor: FetchDescriptor<LocalWeighing> = FetchDescriptor(
+            sortBy: [SortDescriptor(\.weighedOn)]
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func existingWeighing(on dayStart: Date) throws -> LocalWeighing? {
+        var descriptor: FetchDescriptor<LocalWeighing> = FetchDescriptor(
+            predicate: #Predicate { $0.weighedOn == dayStart }
+        )
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    private func insertedWeighing(_ weighing: Weighing, zoneName: String) -> LocalWeighing {
+        let localWeighing: LocalWeighing = LocalWeighing(
+            weighing: weighing, zoneName: zoneName, clientModifiedAt: now()
+        )
+        modelContext.insert(localWeighing)
+        return localWeighing
     }
 
     private func validated(

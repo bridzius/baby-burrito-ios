@@ -159,6 +159,7 @@ Pushed from Today.
 - **Nursing**: daily bars of minutes split by side (left / right / both), so imbalance is visible.
 - **Rhythm**: average and longest interval per day, start to start.
 - Tapping a day scrolls Today's list to that day.
+- **Weight**: a line of every weighing since birth, in grams. It ignores the range picker, since a week usually holds one weighing or none, and is hidden when there are no weighings.
 - Charts carry `accessibilityChartDescriptor` so VoiceOver users get audio graphs.
 
 ### Settings
@@ -166,6 +167,7 @@ Pushed from Today.
 Pushed from the toolbar gear. A plain grouped `Form`.
 
 - **Baby**: name, birth date (required, on or after 2026-01-01), feeding interval (stepper in 15-minute steps, 15 min–12 h, plus chips 2 h, 2½ h, 3 h, 3½ h, 4 h). Editable by the owner and editors; it syncs, so both parents count down to the same time.
+- **Weight**: a row showing the latest weighing ("4 250 g · 12 Oct"), pushing the list of weighings, newest first. ＋ and tapping a row open a sheet with the day (birth day to today) and the weight in grams (500–25 000, stepper by 10 plus a number field). Logging a day that already has a weighing replaces it. Swipe deletes. Owner and editors change weighings; viewers see the list.
 - **Sharing**: invite (system share sheet), participants and their roles, stop sharing / leave.
 - **Lock Screen**: "Show on Lock Screen" toggle with a live preview of the activity. Explains how to re-enable Live Activities if the system has them off.
 - **iCloud status**: a single row, only shown when something needs attention.
@@ -208,7 +210,7 @@ Defined in [plan.md](plan.md); summary:
 
 - **Storage:** CloudKit. One record zone per baby in the owner's private database, shared as a whole with the other parent through a zone-wide `CKShare` (read-only or read-write). All fields are `encryptedValues`, end-to-end encrypted.
 - **Local:** SwiftData store (`cloudKitDatabase: .none`) in an App Group, so the app reads and writes locally first and the widget extension can read it. `CKSyncEngine` syncs it, one engine per database.
-- **Records:** `Baby` (name, birth date, feeding interval) and `Feeding` (start time, kind, ml or duration + side). Birth date is required by the app, though the CloudKit field cannot be marked required.
+- **Records:** `Baby` (name, birth date, feeding interval), `Feeding` (start time, kind, ml or duration + side) and `Weighing` (local day, grams). Birth date is required by the app, though the CloudKit field cannot be marked required.
 - **One baby log per phone (v1):** a phone holds either a baby log it owns or one it participates in. Accepting an invite while owning a log asks to replace it ("Your own log (3 feedings) will be deleted from this phone and your iCloud"); Cancel keeps it and does not accept. Feedings are never merged ([ADR 0004](adr/0004-one-baby-log-per-phone.md)).
 - **Offline:** everything works offline; changes sync later.
 
@@ -255,8 +257,8 @@ Measured on an iPhone 18 Pro, release build. They are acceptance criteria, not g
 - More than one baby on a phone (the title-menu switcher is backlog). The storage stays one zone per baby so it can be added later.
 - App Store release. v1 ends with both parents on a TestFlight build; submission is an optional follow-up.
 - Notifications of any kind.
-- Diapers, sleep, growth, pumping, medications. Feedings only.
-- Units other than ml.
+- Diapers, sleep, length, head size, percentiles, pumping, medications. Feedings and weighings only.
+- Units other than ml and grams.
 - Export. Possibly v2 as a CSV via the share sheet.
 - Nursing timer (decided: after v1).
 - Any server, including a push relay (see the plan's trade-off).
@@ -286,6 +288,7 @@ Measured on an iPhone 18 Pro, release build. They are acceptance criteria, not g
 - **Delete vs leave:** owners delete, participants leave. A participant whose log disappears goes back to First run with one line saying why.
 - **Watch:** Smart Stack layout only, no watch app.
 - **Release:** v1 ends at TestFlight.
+- **Weight (2026-10-16):** weighings are in v1: one per local day, whole grams, logged in Settings and charted in Trends. Today and the Log sheet stay feedings-only.
 
 ## Sources
 

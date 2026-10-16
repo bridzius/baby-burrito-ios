@@ -75,6 +75,14 @@ Fields can't be removed or renamed once the schema is deployed to production. On
 | `breastSide` | String, optional | yes | Nursing only: required, `left` / `right` / `both` |
 | `clientModifiedAt` | Date | yes | For last-writer-wins conflict resolution |
 
+**Record `Weighing`** (recordName `weighing-<yyyy-MM-dd>` of the local day, so two phones weighing on the same day write the same record and the conflict rule picks one):
+
+| Field | Type | Encrypted | Notes |
+|---|---|---|---|
+| `weighedOn` | Date | yes | Start of the local day |
+| `grams` | Int64 | yes | 500–25 000 |
+| `clientModifiedAt` | Date | yes | For last-writer-wins conflict resolution |
+
 Validation (in `Domain`, enforced before anything is written locally): each kind requires exactly its own fields and rejects the other kind's fields; `fedAt` must lie between the start of the baby's birth day and now + 5 minutes. Records arriving through sync are stored as they are and never rejected ([ADR 0005](adr/0005-validate-only-local-writes.md)).
 
 **Who logged it (the author):** use the system field `creatorUserRecordID`. Store the record ID locally and resolve it to a given name when displaying, through the share's participants (`participant.userIdentity.nameComponents.givenName`), falling back to "Partner". Show the author only when it is not the current user. No custom field is needed.
@@ -106,6 +114,14 @@ Validation (in `Domain`, enforced before anything is written locally): each kind
     var breastSide: BreastSide?       // nursing: .left / .right / .both
     var clientModifiedAt: Date
     var authorRecordName: String?     // creatorUserRecordID; name resolved when displayed
+    var encodedSystemFields: Data?
+}
+
+@Model final class LocalWeighing {
+    @Attribute(.unique) var weighedOn: Date   // start of the local day; one weighing per day
+    var zoneName: String
+    var grams: Int
+    var clientModifiedAt: Date
     var encodedSystemFields: Data?
 }
 ```

@@ -6,6 +6,9 @@ final class SettingsTests: XCTestCase {
     static let launchTimeout: TimeInterval  = 30
     static let elementTimeout: TimeInterval = 5
     static let longerInterval: String       = "4h"
+    static let weightRowIdentifier: String  = "weightRow"
+    // The thousands separator depends on the simulator's region.
+    static let steppedUpWeight: String      = "510 g"
 
     private var app: XCUIApplication = XCUIApplication()
 
@@ -29,6 +32,24 @@ final class SettingsTests: XCTestCase {
             NSPredicate(format: "label CONTAINS %@", "every 4 hr")
         ).firstMatch
         XCTAssertTrue(every4Hours.waitForExistence(timeout: Self.elementTimeout))
+    }
+
+    func testLoggingAWeighingShowsItAsTheLatestWeight() {
+        app.buttons["Settings"].tap()
+        app.buttons[Self.weightRowIdentifier].tap()
+        app.buttons["Log weighing"].tap()
+        app.buttons["Increment"].tap()
+        app.buttons["Done"].tap()
+
+        let weighingRow: XCUIElement = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", Self.steppedUpWeight)
+        ).firstMatch
+        XCTAssertTrue(weighingRow.waitForExistence(timeout: Self.elementTimeout))
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        let weightRow: XCUIElement = app.buttons[Self.weightRowIdentifier]
+        XCTAssertTrue(weightRow.waitForExistence(timeout: Self.elementTimeout))
+        XCTAssertTrue(weightRow.label.contains(Self.steppedUpWeight))
     }
 
     func testDeleteAllDataReturnsToFirstRun() {
