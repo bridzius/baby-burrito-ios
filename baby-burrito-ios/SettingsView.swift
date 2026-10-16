@@ -9,6 +9,7 @@ struct SettingsView: View {
     let feedingStore: FeedingStore
 
     @Query(Self.earliestFeedingDescriptor) private var earliestFeedings: [LocalFeeding]
+    @Query(Self.earliestWeighingDescriptor) private var earliestWeighings: [LocalWeighing]
     @State private var baby: Baby
     @State private var isConfirmingDeletion: Bool = false
     @State private var isShowingSaveFailure: Bool = false
@@ -28,7 +29,21 @@ struct SettingsView: View {
         return descriptor
     }
 
+    static var earliestWeighingDescriptor: FetchDescriptor<LocalWeighing> {
+        var descriptor: FetchDescriptor<LocalWeighing> = FetchDescriptor(
+            sortBy: [SortDescriptor(\.weighedOn)]
+        )
+        descriptor.fetchLimit = 1
+        return descriptor
+    }
+
     private var earliestFedAt: Date? { earliestFeedings.first?.fedAt }
+    private var earliestWeighedOn: Date? { earliestWeighings.first?.weighedOn }
+
+    // The birth date can't move past the first feeding or the first weighing.
+    private var latestBirthDate: Date {
+        [earliestFedAt, earliestWeighedOn, .now].compactMap { $0 }.min() ?? .now
+    }
 
     private var trimmedBaby: Baby {
         var trimmed: Baby = baby
@@ -39,8 +54,9 @@ struct SettingsView: View {
     private var invalidReason: String? {
         do {
             _ = try trimmedBaby.validated(
-                calendar:      .autoupdatingCurrent,
-                earliestFedAt: earliestFedAt
+                calendar:          .autoupdatingCurrent,
+                earliestFedAt:     earliestFedAt,
+                earliestWeighedOn: earliestWeighedOn
             )
             return nil
         } catch {
@@ -51,10 +67,12 @@ struct SettingsView: View {
     var body: some View {
         Form {
             BabyDetailsSection(
-                baby:          $baby,
-                earliestFedAt: earliestFedAt,
-                invalidReason: invalidReason
+                baby:            $baby,
+                latestBirthDate: latestBirthDate,
+                invalidReason:   invalidReason
             )
+
+            WeightSection(birthDate: localBaby.birthDate, feedingStore: feedingStore)
 
             LockScreenSection(
                 babyName: baby.name,
@@ -80,7 +98,7 @@ struct SettingsView: View {
         ) {
             Button("Delete all data", role: .destructive, action: deleteEverything)
         } message: {
-            Text("Deletes \(baby.name)'s log and every feeding from this phone.")
+            Text("Deletes \(baby.name)'s log, every feeding and every weighing from this phone.")
         }
         .alert("Couldn't save. Try again.", isPresented: $isShowingSaveFailure) {}
     }

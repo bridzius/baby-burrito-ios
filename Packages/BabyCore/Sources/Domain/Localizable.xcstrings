@@ -7,10 +7,19 @@
     "A feeding can't be in the future." : {
       "extractionState" : "manual"
     },
+    "A weighing can't be before the birth date." : {
+      "extractionState" : "manual"
+    },
+    "A weighing can't be in the future." : {
+      "extractionState" : "manual"
+    },
     "Choose a birth date on or after 1 January 2026." : {
       "extractionState" : "manual"
     },
     "Choose a birth date on or before the first feeding." : {
+      "extractionState" : "manual"
+    },
+    "Choose a birth date on or before the first weighing." : {
       "extractionState" : "manual"
     },
     "Choose a side." : {
@@ -23,6 +32,9 @@
       "extractionState" : "manual"
     },
     "Enter a duration." : {
+      "extractionState" : "manual"
+    },
+    "Enter a weight from %lld to %lld g." : {
       "extractionState" : "manual"
     },
     "Enter an amount from %lld to %lld ml." : {

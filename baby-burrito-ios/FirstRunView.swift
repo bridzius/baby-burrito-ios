@@ -86,8 +86,9 @@ struct FirstRunView: View {
 
     private var invalidReason: String? {
         do {
-            _ = try baby(birthDate: birthDate ?? .now)
-                .validated(calendar: .autoupdatingCurrent, earliestFedAt: nil)
+            _ = try baby(birthDate: birthDate ?? .now).validated(
+                calendar: .autoupdatingCurrent, earliestFedAt: nil, earliestWeighedOn: nil
+            )
         } catch {
             return error.reason
         }

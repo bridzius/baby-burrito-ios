@@ -4,6 +4,7 @@ public enum BabyValidationError: Error, CaseIterable, Equatable, Sendable {
     case emptyName
     case birthDateTooEarly
     case birthDateAfterEarliestFeeding
+    case birthDateAfterEarliestWeighing
     case feedingIntervalNotAllowed
 
     public var reason: String {
@@ -18,6 +19,11 @@ public enum BabyValidationError: Error, CaseIterable, Equatable, Sendable {
         case .birthDateAfterEarliestFeeding:
             return String(
                 localized: "Choose a birth date on or before the first feeding.",
+                bundle: .module
+            )
+        case .birthDateAfterEarliestWeighing:
+            return String(
+                localized: "Choose a birth date on or before the first weighing.",
                 bundle: .module
             )
         case .feedingIntervalNotAllowed:

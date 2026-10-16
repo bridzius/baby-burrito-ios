@@ -51,6 +51,20 @@ _Avoid_: time, logged at, created at, end time
 The local calendar day the baby was born. Always set. No feeding can be fed at before it.
 _Avoid_: birthday, DOB
 
+## Weight
+
+**Weighing**:
+The baby's weight on one local day. At most one per day; logging that day again replaces it.
+_Avoid_: measurement, weight entry, growth record
+
+**Weight**:
+How heavy the baby was at a weighing, in whole grams. Grams are the only unit.
+_Avoid_: mass, kilos
+
+**Weighed on**:
+The local day of a weighing. Never before the birth date, never after today.
+_Avoid_: date, measured at
+
 ## Timing
 
 **Feeding interval**:
@@ -100,7 +114,7 @@ _Avoid_: creator, logged by, user
 ## Sharing
 
 **Baby log**:
-Everything recorded about one baby: the baby and all its feedings. Shared as a whole, never
+Everything recorded about one baby: the baby, all its feedings and all its weighings. Shared as a whole, never
 feeding by feeding. Stored as one CloudKit zone, which is why code and plans call it a "zone".
 _Avoid_: household, family, account
 

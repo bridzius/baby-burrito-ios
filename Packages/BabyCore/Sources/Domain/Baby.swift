@@ -18,8 +18,9 @@ public struct Baby: Hashable, Sendable {
     }
 
     public func validated(
-        calendar:      Calendar,
-        earliestFedAt: Date?
+        calendar:          Calendar,
+        earliestFedAt:     Date?,
+        earliestWeighedOn: Date?
     ) throws(BabyValidationError) -> Baby {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw .emptyName
@@ -28,8 +29,12 @@ public struct Baby: Hashable, Sendable {
             preconditionFailure("The calendar can't represent the earliest birth day")
         }
         guard birthDate >= earliestBirthDate else { throw .birthDateTooEarly }
-        if let earliestFedAt, earliestFedAt < calendar.startOfDay(for: birthDate) {
+        let birthDayStart: Date = calendar.startOfDay(for: birthDate)
+        if let earliestFedAt, earliestFedAt < birthDayStart {
             throw .birthDateAfterEarliestFeeding
+        }
+        if let earliestWeighedOn, earliestWeighedOn < birthDayStart {
+            throw .birthDateAfterEarliestWeighing
         }
         guard Self.allowedFeedingIntervalMinutes.contains(feedingIntervalMinutes),
               feedingIntervalMinutes.isMultiple(of: Self.feedingIntervalStepMinutes)

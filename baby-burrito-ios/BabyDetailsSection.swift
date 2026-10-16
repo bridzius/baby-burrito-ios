@@ -3,13 +3,11 @@ import SwiftUI
 
 struct BabyDetailsSection: View {
     @Binding var baby: Baby
-    let earliestFedAt: Date?
+    let latestBirthDate: Date
     let invalidReason: String?
 
-    // A birth date after the first feeding would make that feeding invalid.
     private var birthDateRange: ClosedRange<Date> {
-        let latestBirthDate: Date = min(earliestFedAt ?? .now, .now)
-        return FirstRunView.earliestBirthDate...latestBirthDate
+        FirstRunView.earliestBirthDate...latestBirthDate
     }
 
     private var birthDateBinding: Binding<Date> {
