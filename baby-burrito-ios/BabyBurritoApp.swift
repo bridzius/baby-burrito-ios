@@ -20,7 +20,11 @@ struct BabyBurritoApp: App {
 
         #if DEBUG
         if let seededFeedingCount = UITestSeed.requestedFeedingCount {
-            UITestSeed.seed(seededFeedingCount, into: feedingStore)
+            UITestSeed.seed(
+                seededFeedingCount,
+                weighingCount: UITestSeed.requestedWeighingCount,
+                into:          feedingStore
+            )
         }
         #endif
     }
