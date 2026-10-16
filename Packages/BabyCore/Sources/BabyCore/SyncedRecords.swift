@@ -51,6 +51,21 @@ struct SyncedRecords {
             + weighings.map { .saveWeighing(weighedOn: $0.weighedOn, zoneName: $0.zoneName) }
     }
 
+    // Nil when the row is gone. Baby records carry no clientModifiedAt, so the server's
+    // baby always wins.
+    func clientModifiedAt(of recordID: CKRecord.ID) throws -> Date? {
+        let recordName: String = recordID.recordName
+        if recordName == RecordMapping.babyRecordName {
+            let localBaby: LocalBaby? = try localBaby(zoneName: recordID.zoneID.zoneName)
+            return localBaby == nil ? nil : RecordMapping.missingModificationDate
+        }
+        if recordName.hasPrefix(RecordMapping.weighingRecordPrefix) {
+            return try localWeighing(recordID: recordID)?.clientModifiedAt
+        }
+        guard let id = UUID(uuidString: recordName) else { return nil }
+        return try localFeeding(id: id)?.clientModifiedAt
+    }
+
     func storeSystemFields(of records: [CKRecord]) throws {
         for record in records {
             try storeSystemFields(SystemFields.encoded(record), for: record.recordID)
