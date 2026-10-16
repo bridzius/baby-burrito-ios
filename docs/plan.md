@@ -72,7 +72,7 @@ Fields can't be removed or renamed once the schema is deployed to production. On
 | `kind` | String | yes | `nursing` / `breast_milk` (bottle of expressed milk) / `formula` |
 | `amountMl` | Int64, optional | yes | Bottles only: required for `breast_milk` / `formula`, absent for `nursing` |
 | `durationMinutes` | Int64, optional | yes | Nursing only: required, 1–120 |
-| `breastSide` | String, optional | yes | Nursing only: required, `left` / `right` / `both` |
+| `side` | String, optional | yes | Nursing only: required, `left` / `right` / `both` (named after the glossary's **Side**) |
 | `clientModifiedAt` | Date | yes | For last-writer-wins conflict resolution |
 
 **Record `Weighing`** (recordName `weighing-<yyyy-MM-dd>` of the local day, so two phones weighing on the same day write the same record and the conflict rule picks one):
@@ -111,7 +111,7 @@ Validation (in `Domain`, enforced before anything is written locally): each kind
     var kind: FeedingKind             // .nursing / .breastMilk / .formula
     var amountMl: Int?                // bottles
     var durationMinutes: Int?         // nursing
-    var breastSide: BreastSide?       // nursing: .left / .right / .both
+    var side: Side?                   // nursing: .left / .right / .both
     var clientModifiedAt: Date
     var authorRecordName: String?     // creatorUserRecordID; name resolved when displayed
     var encodedSystemFields: Data?
@@ -137,7 +137,8 @@ BabyBurritoWidgets/          WidgetKit extension: Live Activity UI (incl. Smart 
 Packages/BabyCore/
   Sources/Domain/            Feeding, FeedingKind, validation, Statistics, repeat rule, suggestions.
                              Imports Foundation only
-  Sources/BabyCore/          SwiftData models, FeedingStore (the only writer to SwiftData),
+  Sources/BabyCore/          SwiftData models, FeedingStore (the only writer for local edits),
+                             SyncedRecords (the only writer for synced records),
                              SyncCoordinator, RecordMapping, ConflictResolver, SyncStateStore,
                              ShareController, FeedingActivityAttributes, FeedingActivityController
   Tests/DomainTests/
