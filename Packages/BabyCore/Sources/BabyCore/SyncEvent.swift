@@ -5,6 +5,13 @@ import CloudKit
 public enum SyncEvent: Sendable {
     case fetched(saved: [CKRecord], deleted: [DeletedRecord])
     case sent(saved: [CKRecord], failed: [FailedRecordSave])
+    case accountChanged(AccountChange)
+}
+
+public enum AccountChange: Equatable, Sendable {
+    case signedIn
+    case signedOut
+    case switchedAccounts
 }
 
 public struct DeletedRecord: Sendable {

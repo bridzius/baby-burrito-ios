@@ -3,7 +3,8 @@ import Foundation
 import SwiftData
 
 // Turns local changes into CloudKit pending changes and applies what the engine reports.
-// Created at launch without touching CloudKit; changes wait until the engine starts.
+// Created at launch without touching CloudKit; changes wait until the engine starts, and
+// again after an account change until the shell starts a fresh engine.
 @MainActor
 public final class SyncCoordinator: SyncQueue {
     private let records: SyncedRecords
@@ -53,6 +54,13 @@ public final class SyncCoordinator: SyncQueue {
             for failure in failed {
                 try retry(failure)
             }
+        case .accountChanged(.signedIn):
+            for change in try records.everyChange() {
+                enqueue(change)
+            }
+        case .accountChanged(.signedOut), .accountChanged(.switchedAccounts):
+            try records.deleteEverything()
+            engine = nil
         }
     }
 

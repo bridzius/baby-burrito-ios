@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var baby: Baby
     @State private var isConfirmingDeletion: Bool = false
     @State private var isShowingSaveFailure: Bool = false
+    @Environment(\.iCloudAccount) private var iCloudAccount: ICloudAccount?
 
     init(localBaby: LocalBaby, lastFeeding: Feeding?, feedingStore: FeedingStore) {
         self.localBaby    = localBaby
@@ -66,6 +67,8 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            ICloudStatusSection(account: iCloudAccount)
+
             BabyDetailsSection(
                 baby:            $baby,
                 latestBirthDate: latestBirthDate,

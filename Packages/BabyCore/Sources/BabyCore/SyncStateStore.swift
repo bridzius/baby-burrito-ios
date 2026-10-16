@@ -24,4 +24,9 @@ public struct SyncStateStore: Sendable {
         )
         try JSONEncoder().encode(state).write(to: fileURL, options: .atomic)
     }
+
+    func delete() throws {
+        guard FileManager.default.fileExists(atPath: fileURL.path()) else { return }
+        try FileManager.default.removeItem(at: fileURL)
+    }
 }
