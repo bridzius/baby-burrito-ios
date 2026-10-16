@@ -59,7 +59,11 @@ private final class CloudSyncEngineDelegate: CKSyncEngineDelegate {
             await handle(.sent(
                 saved:  sent.savedRecords,
                 failed: sent.failedRecordSaves.map {
-                    FailedRecordSave(record: $0.record, errorCode: $0.error.code)
+                    FailedRecordSave(
+                        record:       $0.record,
+                        errorCode:    $0.error.code,
+                        serverRecord: $0.error.serverRecord
+                    )
                 }
             ))
         case .accountChange(let change):

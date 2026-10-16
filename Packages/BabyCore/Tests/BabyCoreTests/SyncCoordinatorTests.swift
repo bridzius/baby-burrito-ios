@@ -248,3 +248,77 @@ struct SyncCoordinatorTests {
         ))
     }
 }
+
+@MainActor
+struct SyncConflictTests {
+    let now: Date                      = .vilnius(2026, 4, 2, hour: 9)
+    let container: ModelContainer
+    let coordinator: SyncCoordinator
+    let engine: RecordingSyncEngine    = RecordingSyncEngine()
+    let store: FeedingStore
+
+    init() throws {
+        container   = try LocalStore.inMemoryContainer()
+        coordinator = SyncCoordinator(modelContext: container.mainContext, calendar: .vilnius)
+        store       = FeedingStore(
+            modelContext: container.mainContext,
+            syncQueue:    coordinator,
+            calendar:     .vilnius,
+            now:          { [now] in now }
+        )
+    }
+
+    func conflict(
+        on local:   LocalFeeding,
+        serverEdit: FeedingDetails,
+        modifiedAt: Date
+    ) throws -> SyncEvent {
+        let sent: CKRecord = try #require(coordinator.recordToSend(
+            RecordMapping.feedingRecordID(id: local.id, zoneName: local.zoneName)
+        ))
+        let server: CKRecord = try RecordMapping.feedingRecord(
+            SyncedFeeding(
+                feeding:          Feeding(id: local.id, fedAt: local.fedAt, details: serverEdit),
+                clientModifiedAt: modifiedAt,
+                authorRecordName: nil
+            ),
+            zoneName:     local.zoneName,
+            systemFields: nil
+        )
+        return .sent(saved: [], failed: [
+            FailedRecordSave(record: sent, errorCode: .serverRecordChanged, serverRecord: server),
+        ])
+    }
+
+    @Test func a_newer_local_edit_is_sent_again_on_top_of_the_server_record() throws {
+        _ = try store.createBaby(.ona)
+        let local: LocalFeeding = try store.log(fedAt: now, details: .formula90)
+        try coordinator.start(with: engine, uploadingEverything: false)
+        let event: SyncEvent    = try conflict(
+            on: local, serverEdit: .nursingLeft, modifiedAt: now.addingTimeInterval(-60)
+        )
+
+        try coordinator.handle(event)
+
+        #expect(local.feeding.details == .formula90)
+        #expect(local.encodedSystemFields != nil)
+        #expect(engine.recordChanges.last == .saveRecord(
+            RecordMapping.feedingRecordID(id: local.id, zoneName: local.zoneName)
+        ))
+    }
+
+    @Test func a_newer_server_edit_replaces_the_local_one() throws {
+        _ = try store.createBaby(.ona)
+        let local: LocalFeeding = try store.log(fedAt: now, details: .formula90)
+        try coordinator.start(with: engine, uploadingEverything: false)
+        let changesBefore: Int  = engine.recordChanges.count
+        let event: SyncEvent    = try conflict(
+            on: local, serverEdit: .nursingLeft, modifiedAt: now.addingTimeInterval(60)
+        )
+
+        try coordinator.handle(event)
+
+        #expect(local.feeding.details == .nursingLeft)
+        #expect(engine.recordChanges.count == changesBefore)
+    }
+}

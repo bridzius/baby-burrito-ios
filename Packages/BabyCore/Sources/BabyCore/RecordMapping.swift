@@ -112,6 +112,10 @@ public enum RecordMapping {
 
     // MARK: Incoming
 
+    static func clientModifiedAt(of record: CKRecord) -> Date {
+        record.encryptedValues[Field.clientModifiedAt] as? Date ?? missingModificationDate
+    }
+
     // Records are stored as they arrive (ADR 0005); only a record missing a field the app
     // can't do without comes back nil.
     static func baby(from record: CKRecord) -> Baby? {
@@ -144,7 +148,7 @@ public enum RecordMapping {
         )
         return SyncedFeeding(
             feeding:          Feeding(id: id, fedAt: fedAt, details: details),
-            clientModifiedAt: values[Field.clientModifiedAt] as? Date ?? missingModificationDate,
+            clientModifiedAt: clientModifiedAt(of: record),
             authorRecordName: record.creatorUserRecordID?.recordName
         )
     }
@@ -157,7 +161,7 @@ public enum RecordMapping {
 
         return SyncedWeighing(
             weighing:         Weighing(weighedOn: weighedOn, grams: grams),
-            clientModifiedAt: values[Field.clientModifiedAt] as? Date ?? missingModificationDate
+            clientModifiedAt: clientModifiedAt(of: record)
         )
     }
 }
