@@ -107,6 +107,14 @@ struct SyncedRecords {
         try modelContext.save()
     }
 
+    // A different person's data must never stay on the phone, and none of it is sent anywhere.
+    func deleteEverything() throws {
+        try modelContext.delete(model: LocalFeeding.self)
+        try modelContext.delete(model: LocalWeighing.self)
+        try modelContext.delete(model: LocalBaby.self)
+        try modelContext.save()
+    }
+
     // MARK: Helpers
 
     private func saveBaby(_ record: CKRecord) throws {

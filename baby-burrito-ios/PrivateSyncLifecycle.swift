@@ -3,8 +3,9 @@ import os
 import SwiftUI
 
 extension View {
-    // Starts private sync after the first frame and fetches on every return to the foreground
-    // and on pull-to-refresh. Nil in UI tests, which never touch CloudKit.
+    // Starts private sync after the first frame, fetches on every return to the foreground
+    // and on pull-to-refresh, and keeps the iCloud account status in the environment.
+    // Nil in UI tests, which never touch CloudKit.
     func privateSync(_ privateSync: PrivateSync?) -> some View {
         modifier(PrivateSyncLifecycle(privateSync: privateSync))
     }
@@ -16,17 +17,25 @@ private struct PrivateSyncLifecycle: ViewModifier {
     let privateSync: PrivateSync?
 
     @Environment(\.scenePhase) private var scenePhase: ScenePhase
+    @State private var iCloudAccount: ICloudAccount?
 
     func body(content: Content) -> some View {
         if let privateSync {
             content
                 .task(id: scenePhase) {
                     guard scenePhase == .active else { return }
+                    iCloudAccount = await privateSync.accountStatus()
                     await startAndFetch(privateSync)
                 }
                 .refreshable {
                     await startAndFetch(privateSync)
                 }
+                .onReceive(NotificationCenter.default.publisher(
+                    for: PrivateSync.accountChangedNotification
+                )) { _ in
+                    Task { iCloudAccount = await privateSync.accountStatus() }
+                }
+                .environment(\.iCloudAccount, iCloudAccount)
         } else {
             content
         }

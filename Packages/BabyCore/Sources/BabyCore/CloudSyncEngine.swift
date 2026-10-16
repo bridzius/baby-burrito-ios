@@ -6,12 +6,17 @@ final class CloudSyncEngine: SyncEngine {
     private let delegate: CloudSyncEngineDelegate
 
     init(
-        database:   CKDatabase,
-        savedState: CKSyncEngine.State.Serialization?,
-        stateStore: SyncStateStore,
-        coordinator: SyncCoordinator
+        database:       CKDatabase,
+        savedState:     CKSyncEngine.State.Serialization?,
+        stateStore:     SyncStateStore,
+        coordinator:    SyncCoordinator,
+        accountChanged: @escaping @MainActor @Sendable (AccountChange) -> Void
     ) {
-        delegate = CloudSyncEngineDelegate(coordinator: coordinator, stateStore: stateStore)
+        delegate = CloudSyncEngineDelegate(
+            coordinator:    coordinator,
+            stateStore:     stateStore,
+            accountChanged: accountChanged
+        )
         engine   = CKSyncEngine(CKSyncEngine.Configuration(
             database:           database,
             stateSerialization: savedState,
@@ -34,10 +39,16 @@ final class CloudSyncEngine: SyncEngine {
 private final class CloudSyncEngineDelegate: CKSyncEngineDelegate {
     private let coordinator: SyncCoordinator
     private let stateStore: SyncStateStore
+    private let accountChanged: @MainActor @Sendable (AccountChange) -> Void
 
-    init(coordinator: SyncCoordinator, stateStore: SyncStateStore) {
-        self.coordinator = coordinator
-        self.stateStore  = stateStore
+    init(
+        coordinator:    SyncCoordinator,
+        stateStore:     SyncStateStore,
+        accountChanged: @escaping @MainActor @Sendable (AccountChange) -> Void
+    ) {
+        self.coordinator    = coordinator
+        self.stateStore     = stateStore
+        self.accountChanged = accountChanged
     }
 
     func handleEvent(_ event: CKSyncEngine.Event, syncEngine: CKSyncEngine) async {
@@ -67,7 +78,12 @@ private final class CloudSyncEngineDelegate: CKSyncEngineDelegate {
                 }
             ))
         case .accountChange(let change):
-            SyncLog.logger.notice("iCloud account changed: \(change)")
+            switch change.changeType {
+            case .signIn:         await accountChanged(.signedIn)
+            case .signOut:        await accountChanged(.signedOut)
+            case .switchAccounts: await accountChanged(.switchedAccounts)
+            @unknown default:     SyncLog.logger.error("Unknown account change: \(change)")
+            }
         case .fetchedDatabaseChanges(let changes):
             for deletion in changes.deletions {
                 SyncLog.logger.notice("Zone \(deletion.zoneID.zoneName) was deleted")
