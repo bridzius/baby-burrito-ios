@@ -65,6 +65,12 @@ struct SettingsView: View {
                 )
             )
 
+            #if DEBUG
+            Section {
+                NavigationLink("Sharing spike") { SharingSpikeView() }
+            }
+            #endif
+
             Section {
                 Button("Delete all data", role: .destructive) {
                     isConfirmingDeletion = true

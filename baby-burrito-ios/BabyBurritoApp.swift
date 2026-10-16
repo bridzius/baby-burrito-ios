@@ -8,6 +8,10 @@ struct BabyBurritoApp: App {
     let feedingStore: FeedingStore
     let activityController: FeedingActivityController
 
+    #if DEBUG
+    @UIApplicationDelegateAdaptor(SharingSpikeAppDelegate.self) private var spikeAppDelegate
+    #endif
+
     init() {
         modelContainer = Self.openModelContainer()
         feedingStore   = FeedingStore(
