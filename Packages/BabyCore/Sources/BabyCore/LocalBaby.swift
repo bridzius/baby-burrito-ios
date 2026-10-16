@@ -7,6 +7,7 @@ public final class LocalBaby {
     public private(set) var name: String
     public private(set) var birthDate: Date
     public private(set) var feedingIntervalMinutes: Int
+    private(set) var encodedSystemFields: Data?
 
     init(baby: Baby, zoneName: String) {
         self.zoneName               = zoneName
@@ -23,5 +24,9 @@ public final class LocalBaby {
         name                   = baby.name
         birthDate              = baby.birthDate
         feedingIntervalMinutes = baby.feedingIntervalMinutes
+    }
+
+    func storeSystemFields(_ encodedSystemFields: Data?) {
+        self.encodedSystemFields = encodedSystemFields
     }
 }

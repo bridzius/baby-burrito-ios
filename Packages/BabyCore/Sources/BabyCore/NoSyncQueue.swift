@@ -1,4 +1,4 @@
-// Stands in until private sync (#27) queues changes for CloudKit.
+// For previews and UI tests, which never touch CloudKit.
 public struct NoSyncQueue: SyncQueue {
     public init() {}
 
