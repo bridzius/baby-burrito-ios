@@ -9,6 +9,7 @@ struct TrendsView: View {
     let showDay: (_ dayStart: Date, _ feedingsSinceDayStart: Int) -> Void
 
     @Query private var recentFeedings: [LocalFeeding]
+    @Query(sort: \LocalWeighing.weighedOn) private var weighings: [LocalWeighing]
     @State private var range: TrendsRange = .week
     @State private var figures: TrendsFigures?
     @Environment(\.dismiss) private var dismiss: DismissAction
@@ -45,6 +46,13 @@ struct TrendsView: View {
                 }
                 Section("Rhythm") {
                     RhythmChart(figures: figures, selectDay: select)
+                }
+            }
+
+            // Every weighing since birth: a week or a month usually holds one weighing or none.
+            if !weighings.isEmpty {
+                Section("Weight") {
+                    WeightChart(weighings: weighings.map(\.weighing))
                 }
             }
         }

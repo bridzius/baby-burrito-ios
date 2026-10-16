@@ -9,6 +9,9 @@ private enum PreviewSeed {
     static let skippedDay: Int             = 9
     static let birthDaysAgo: Int           = 40
     static let feedingIntervalMinutes: Int = 180
+    static let weighingEveryDays: Int      = 7
+    static let birthWeightGrams: Int       = 3_400
+    static let weeklyGainGrams: Int        = 190
 
     // A steady mix that varies by day, with one day left empty to show a zero bar.
     static func details(day: Int, feeding: Int) -> FeedingDetails {
@@ -55,6 +58,16 @@ private func trendsPreview() -> some View {
                     details: PreviewSeed.details(day: day, feeding: feeding)
                 )
             }
+        }
+        let weighingDaysAgo: StrideThrough<Int> = stride(
+            from: PreviewSeed.birthDaysAgo, through: 0, by: -PreviewSeed.weighingEveryDays
+        )
+        for daysAgo in weighingDaysAgo {
+            let weeksOld: Int = (PreviewSeed.birthDaysAgo - daysAgo) / PreviewSeed.weighingEveryDays
+            _ = try store.logWeighing(
+                weighedOn: calendar.date(byAdding: .day, value: -daysAgo, to: today) ?? today,
+                grams:     PreviewSeed.birthWeightGrams + weeksOld * PreviewSeed.weeklyGainGrams
+            )
         }
         return NavigationStack {
             TrendsView(now: .now) { _, _ in }
