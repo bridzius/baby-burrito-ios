@@ -7,13 +7,28 @@ struct BabyBurritoApp: App {
     let modelContainer: ModelContainer
     let feedingStore: FeedingStore
     let activityController: FeedingActivityController
+    let privateSync: PrivateSync?
+
+    @UIApplicationDelegateAdaptor(RemoteNotificationsAppDelegate.self)
+    private var remoteNotificationsAppDelegate: RemoteNotificationsAppDelegate
 
     init() {
-        modelContainer = Self.openModelContainer()
-        feedingStore   = FeedingStore(
+        let calendar: Calendar = .autoupdatingCurrent
+        modelContainer         = Self.openModelContainer()
+
+        let syncCoordinator: SyncCoordinator = SyncCoordinator(
             modelContext: modelContainer.mainContext,
-            syncQueue:    NoSyncQueue(),
-            calendar:     .autoupdatingCurrent,
+            calendar:     calendar
+        )
+        privateSync  = Self.isSeededForUITests ? nil : PrivateSync(
+            coordinator: syncCoordinator,
+            stateStore:  .privateDatabase()
+        )
+        let syncQueue: any SyncQueue = Self.isSeededForUITests ? NoSyncQueue() : syncCoordinator
+        feedingStore = FeedingStore(
+            modelContext: modelContainer.mainContext,
+            syncQueue:    syncQueue,
+            calendar:     calendar,
             now:          Date.init
         )
         activityController = FeedingActivityController(activities: SystemFeedingActivities())
@@ -29,13 +44,19 @@ struct BabyBurritoApp: App {
         #endif
     }
 
+    private static var isSeededForUITests: Bool {
+        #if DEBUG
+        UITestSeed.requestedFeedingCount != nil
+        #else
+        false
+        #endif
+    }
+
     private static func openModelContainer() -> ModelContainer {
         do {
-            #if DEBUG
-            if UITestSeed.requestedFeedingCount != nil {
+            if isSeededForUITests {
                 return try LocalStore.inMemoryContainer()
             }
-            #endif
             return try LocalStore.container(at: LocalStore.appGroupStoreURL(), readOnly: false)
         } catch {
             preconditionFailure("The local store didn't open: \(error)")
@@ -46,6 +67,7 @@ struct BabyBurritoApp: App {
         WindowGroup {
             RootView(feedingStore: feedingStore, activityController: activityController)
                 .symbolEffectsFollowReduceMotion()
+                .privateSync(privateSync)
         }
         .modelContainer(modelContainer)
     }

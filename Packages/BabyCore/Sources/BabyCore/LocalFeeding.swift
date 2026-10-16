@@ -12,6 +12,7 @@ public final class LocalFeeding {
     public private(set) var side: Side?
     public private(set) var clientModifiedAt: Date
     public private(set) var authorRecordName: String?
+    private(set) var encodedSystemFields: Data?
 
     init(
         feeding:          Feeding,
@@ -47,5 +48,22 @@ public final class LocalFeeding {
         durationMinutes  = feeding.details.durationMinutes
         side             = feeding.details.side
         clientModifiedAt = modifiedAt
+    }
+
+    func apply(_ synced: SyncedFeeding) {
+        apply(synced.feeding, modifiedAt: synced.clientModifiedAt)
+        authorRecordName = synced.authorRecordName
+    }
+
+    var synced: SyncedFeeding {
+        SyncedFeeding(
+            feeding:          feeding,
+            clientModifiedAt: clientModifiedAt,
+            authorRecordName: authorRecordName
+        )
+    }
+
+    func storeSystemFields(_ encodedSystemFields: Data?) {
+        self.encodedSystemFields = encodedSystemFields
     }
 }
